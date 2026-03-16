@@ -236,12 +236,15 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
 .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:5px;}
 .emoji-opt{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:6px;font-size:17px;cursor:pointer;text-align:center;transition:all .2s;}
 .emoji-opt:hover,.emoji-opt.sel{background:rgba(108,99,255,.2);border-color:rgba(108,99,255,.5);}
+.kd-emoji-opt{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:6px;font-size:17px;cursor:pointer;text-align:center;transition:all .2s;}
+.kd-emoji-opt:hover,.kd-emoji-opt.kd-sel{background:rgba(255,101,132,.2);border-color:rgba(255,101,132,.5);}
 .src-tabs{display:flex;gap:6px;margin-bottom:8px;}
 .src-tab{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:8px;padding:7px;font-size:11px;font-weight:700;text-align:center;cursor:pointer;transition:all .2s;}
 .src-tab.active{background:rgba(108,99,255,.2);border-color:rgba(108,99,255,.4);color:#fff;}
 .file-drop{border:2px dashed rgba(108,99,255,.35);border-radius:12px;padding:16px;text-align:center;cursor:pointer;position:relative;background:rgba(108,99,255,.05);}
 .file-drop.done{border-style:solid;border-color:rgba(38,222,129,.4);background:rgba(38,222,129,.05);}
 .file-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.file-drop[onclick]{cursor:pointer;}
 .file-drop-ico{font-size:26px;margin-bottom:5px;}.file-drop-txt{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);}.file-drop-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
 .prog-wrap{display:none;margin-top:8px;}
 .prog-bg{background:rgba(255,255,255,.07);border-radius:20px;height:6px;overflow:hidden;}
@@ -321,6 +324,10 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
 .player-time{font-size:12px;color:rgba(255,255,255,.8);font-weight:700;font-variant-numeric:tabular-nums;}
 .player-time-sep{font-size:11px;color:rgba(255,255,255,.4);}
 .player-bottom-btns{display:flex;align-items:center;gap:8px;}
+.cc-active-btn{background:rgba(38,222,129,.25)!important;border-color:rgba(38,222,129,.6)!important;color:#26de81!important;}
+.lang-opt-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.75);font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;padding:9px 6px;border-radius:9px;cursor:pointer;transition:all .2s;text-align:center;}
+.lang-opt-btn:hover{background:rgba(108,99,255,.2);border-color:rgba(108,99,255,.4);}
+.lang-opt-btn.active{background:rgba(108,99,255,.3);border-color:rgba(108,99,255,.6);color:#fff;box-shadow:0 2px 10px rgba(108,99,255,.25);}
 .player-bottom-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;font-family:'Cairo',sans-serif;padding:5px 12px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;transition:all .2s;}
 .player-bottom-btn:hover{background:rgba(255,255,255,.2);}
 .player-bottom-btn.active{background:rgba(108,99,255,.3);border-color:rgba(108,99,255,.5);}
@@ -362,6 +369,7 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
     <div class="sb-item" id="sb-mylist" onclick="sbGo('mylist')"><div class="sb-item-icon">📋</div><div class="sb-item-label">قائمتي</div></div>
     <div class="sb-divider"></div>
     <div class="sb-section">أخرى</div>
+    <div class="sb-item" id="sb-kdrama" onclick="sbGo('kdrama')"><div class="sb-item-icon">🇰🇷</div><div class="sb-item-label">مسلسلات كورية</div></div>
     <div class="sb-item" id="sb-settings" onclick="sbGo('settings')"><div class="sb-item-icon">⚙️</div><div class="sb-item-label">الإعدادات</div></div>
     <div class="sb-adm-btn" onclick="closeSidebar();openAdm();">
       <div style="width:32px;height:32px;background:linear-gradient(135deg,#6C63FF,#FF6584);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">👑</div>
@@ -397,6 +405,11 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
     </div>
   </div>
   <div class="container">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;padding:14px 0 4px;">
+      <button class="cat-btn active" id="type-all-btn" onclick="setTypeFilter('الكل',this)">الكل</button>
+      <button class="cat-btn" id="type-series-btn" onclick="setTypeFilter('مسلسل',this)">📺 مسلسلات</button>
+      <button class="cat-btn" id="type-movie-btn" onclick="setTypeFilter('فلم',this)">🎬 أفلام</button>
+    </div>
     <div class="categories" id="cat-bar"></div>
     <div class="section-header"><div class="section-title">📺 جميع الأنيميات</div><div class="section-count" id="result-count">0 نتيجة</div></div>
     <div class="grid" id="anime-grid"></div>
@@ -455,6 +468,14 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
   </div>
 </div>
 
+<div id="page-kdrama" class="page">
+  <div class="container" style="padding-top:26px;padding-bottom:60px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;"><button class="back-btn" onclick="sbGo('home')">← رجوع</button><span style="font-size:16px;font-weight:900;">🇰🇷 مسلسلات كورية</span></div>
+    <div class="grid" id="kdrama-grid"></div>
+    <div id="kdrama-empty" class="empty" style="display:none;"><div class="empty-icon">🇰🇷</div><div class="empty-text">لا توجد مسلسلات كورية بعد</div><div class="empty-sub">أضف أنيمي من نوع مسلسل وضع "كوري" في التصنيف</div></div>
+  </div>
+</div>
+
 <div id="page-settings" class="page">
   <div class="settings-wrap">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;"><button class="back-btn" onclick="sbGo('home')">← رجوع</button><span style="font-size:16px;font-weight:900;">الإعدادات</span></div>
@@ -495,7 +516,8 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
       <div class="bright-slider-wrap" id="bright-slider-wrap"><span style="font-size:14px;">☀️</span><input type="range" class="bright-slider" id="bright-slider" min="0" max="200" value="100" oninput="setBrightness(this.value)"><span style="font-size:14px;">🌑</span></div>
       <video class="player-video" id="player-video" preload="metadata"></video>
       <iframe id="player-iframe" style="display:none;width:100%;height:100%;border:none;position:absolute;inset:0;" allowfullscreen allow="autoplay"></iframe>
-      <div class="subtitle-overlay" id="subtitle-overlay" style="display:none;"><div class="subtitle-text" id="subtitle-text"></div></div>
+      <div id="cc-subtitle-bar" style="display:none;position:absolute;bottom:54px;left:0;right:0;text-align:center;pointer-events:none;z-index:10;padding:0 12px;"><div id="cc-subtitle-text" style="display:inline-block;background:rgba(0,0,0,.82);color:#fff;font-size:16px;font-weight:700;padding:6px 18px;border-radius:8px;line-height:1.6;max-width:92%;direction:rtl;text-shadow:0 1px 4px rgba(0,0,0,.9);font-family:Cairo,sans-serif;"></div></div>
+      <div id="subtitle-overlay" style="display:none;position:absolute;bottom:56px;left:0;right:0;text-align:center;pointer-events:none;z-index:11;padding:0 10px;"><div id="subtitle-text" style="display:inline-block;background:rgba(0,0,0,.85);color:#fff;font-size:17px;font-weight:700;padding:7px 20px;border-radius:9px;line-height:1.6;max-width:94%;direction:rtl;text-shadow:0 1px 4px rgba(0,0,0,.9);font-family:Cairo,sans-serif;border:1px solid rgba(255,255,255,.08);"></div></div>
       <div class="player-overlay" id="player-overlay">
         <div class="player-top-bar"><div class="player-title" id="player-title"></div><div class="player-ep-badge" id="player-ep-badge"></div></div>
         <div class="player-center">
@@ -512,13 +534,88 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
             <div style="margin-right:auto;display:flex;align-items:center;gap:6px;">
               <button class="player-bottom-btn" onclick="cycleSpeed()">⚡ <span id="speed-label">1x</span></button>
               <button class="player-bottom-btn" onclick="toggleBrightSlider()" id="bright-btn">☀️</button>
-              <button class="player-bottom-btn" id="subtrans-btn" onclick="togglePlayerSubtrans()">🎙️</button>
+              <button class="player-bottom-btn" id="cc-btn" onclick="toggleCC()" title="ترجمة CC" style="font-size:11px;font-weight:900;letter-spacing:-0.5px;padding:4px 7px;border:1.5px solid rgba(255,255,255,.3);border-radius:5px;">CC</button>
+              <button class="player-bottom-btn" id="autosub-btn" onclick="toggleAutoSub()" title="ترجمة تلقائية" style="font-size:10px;font-weight:900;padding:4px 7px;border:1.5px solid rgba(255,255,255,.25);border-radius:5px;letter-spacing:-.3px;">ترجمة</button>
               <button class="player-bottom-btn" onclick="toggleFullscreen()" id="fs-btn" title="تكبير الشاشة">⛶</button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- AUTO SUBTITLE PANEL -->
+    <div id="autosub-panel" style="display:none;background:rgba(13,13,24,.96);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 18px;margin:10px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <div style="width:36px;height:36px;background:linear-gradient(135deg,#6C63FF,#FF6584);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;">🌐</div>
+          <div><div style="font-size:14px;font-weight:800;">ترجمة تلقائية فورية</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;">يكتشف الكلام ويترجمه للعربي تلقائياً</div></div>
+        </div>
+        <button onclick="document.getElementById('autosub-panel').style.display='none'" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;">✕</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:11px;color:rgba(255,255,255,.45);font-weight:700;margin-bottom:6px;">🎙️ لغة الفيديو الأصلية</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;" id="lang-grid">
+          <button class="lang-opt-btn active" onclick="setAutoLang(this,'ko-KR')">🇰🇷 كورية</button>
+          <button class="lang-opt-btn" onclick="setAutoLang(this,'ja-JP')">🇯🇵 يابانية</button>
+          <button class="lang-opt-btn" onclick="setAutoLang(this,'zh-CN')">🇨🇳 صينية</button>
+          <button class="lang-opt-btn" onclick="setAutoLang(this,'en-US')">🇺🇸 إنجليزية</button>
+          <button class="lang-opt-btn" onclick="setAutoLang(this,'tr-TR')">🇹🇷 تركية</button>
+          <button class="lang-opt-btn" onclick="setAutoLang(this,'es-ES')">🇪🇸 إسبانية</button>
+          <button class="lang-opt-btn" onclick="setAutoLang(this,'ar-SA')">🇸🇦 عربية</button>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;padding:10px 13px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.07);">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px;">📌 ملاحظة مهمة</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.7;">الترجمة التلقائية تعمل عبر ميكروفون الجهاز — تأكد من أن صوت الفيديو يُسمع بوضوح. تعمل بشكل أفضل في Chrome.</div>
+      </div>
+      <button id="autosub-start-btn" onclick="startAutoSub()" style="width:100%;padding:13px;background:linear-gradient(135deg,#6C63FF,#8B5CF6);border:none;border-radius:11px;color:#fff;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;">▶ تشغيل الترجمة التلقائية</button>
+      <div id="autosub-status" style="display:none;margin-top:10px;padding:10px 13px;border-radius:9px;font-size:12px;font-weight:700;text-align:center;"></div>
+    </div>
+
+    <!-- CC SUBTITLE PANEL -->
+    <div id="cc-panel" style="display:none;background:rgba(13,13,24,.96);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 18px;margin:10px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:9px;">
+          <div style="width:34px;height:34px;background:rgba(255,255,255,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;border:1.5px solid rgba(255,255,255,.3);">CC</div>
+          <div><div style="font-size:14px;font-weight:800;">الترجمة المخصصة</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">ارفع ملف SRT أو أدخل الترجمة يدوياً</div></div>
+        </div>
+        <button onclick="closeCC()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+      <!-- Source tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <div id="cc-tab-srt" class="src-tab active" onclick="switchCCTab('srt')" style="flex:1;text-align:center;">📄 ملف SRT</div>
+        <div id="cc-tab-manual" class="src-tab" onclick="switchCCTab('manual')" style="flex:1;text-align:center;">✏️ يدوي</div>
+        <div id="cc-tab-off" class="src-tab" onclick="switchCCTab('off')" style="flex:1;text-align:center;">🚫 إيقاف</div>
+      </div>
+      <!-- SRT Panel -->
+      <div id="cc-srt-panel">
+        <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed rgba(255,255,255,.15);border-radius:10px;padding:20px;cursor:pointer;transition:all .2s;" id="cc-drop-zone" ondragover="event.preventDefault();this.style.borderColor='#6C63FF'" ondragleave="this.style.borderColor='rgba(255,255,255,.15)'" ondrop="onCCDrop(event)">
+          <input type="file" id="cc-file-input" accept=".srt,.vtt,.ass" style="display:none;" onchange="onCCFile(event)">
+          <span style="font-size:28px;" id="cc-drop-icon">📄</span>
+          <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,.7);" id="cc-drop-txt">اسحب ملف SRT أو اضغط للاختيار</span>
+          <span style="font-size:11px;color:rgba(255,255,255,.35);">SRT · VTT · ASS</span>
+        </label>
+        <div id="cc-srt-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;"></div>
+      </div>
+      <!-- Manual Panel -->
+      <div id="cc-manual-panel" style="display:none;">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:7px;">أدخل الترجمة — كل سطر جملة مستقلة بالثواني (مثال: 0-4|مرحبا بالعالم)</div>
+        <textarea id="cc-manual-input" rows="5" placeholder="0-4|مرحبا بالعالم&#10;5-9|كيف حالك اليوم&#10;10-15|أهلاً وسهلاً" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:Cairo,sans-serif;border-radius:10px;padding:10px 13px;font-size:12px;outline:none;resize:vertical;direction:rtl;"></textarea>
+        <button onclick="loadManualCC()" style="margin-top:8px;background:linear-gradient(135deg,#6C63FF,#8B5CF6);border:none;border-radius:9px;color:#fff;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;padding:9px 22px;cursor:pointer;width:100%;">✓ تطبيق الترجمة</button>
+        <div id="cc-manual-msg" style="font-size:11px;margin-top:6px;display:none;"></div>
+      </div>
+      <!-- Settings row -->
+      <div id="cc-settings-row" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);">حجم الخط:</div>
+        <input type="range" id="cc-size-slider" min="12" max="28" value="16" oninput="updateCCSize(this.value)" style="flex:1;accent-color:#6C63FF;">
+        <span id="cc-size-val" style="font-size:11px;color:rgba(255,255,255,.5);min-width:30px;">16px</span>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);">الموضع:</div>
+        <select id="cc-pos-sel" onchange="updateCCPos(this.value)" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#fff;font-family:Cairo,sans-serif;padding:5px 10px;border-radius:8px;font-size:11px;outline:none;">
+          <option value="bottom">أسفل</option>
+          <option value="top">أعلى</option>
+        </select>
+      </div>
+    </div>
+
     <div id="watch-info" style="margin-bottom:14px;display:none;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:7px;">
         <div><div id="watch-anime-name" style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:2px;"></div><div id="watch-ep-title" style="font-size:17px;font-weight:800;"></div></div>
@@ -668,6 +765,7 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
         <button class="adm-tab" onclick="admTab('appearance',this)">🎨 المظهر</button>
         <button class="adm-tab" onclick="admTab('announce',this)">📢 إعلان</button>
         <button class="adm-tab" onclick="admTab('content',this)">🔞 تصنيف</button>
+        <button class="adm-tab" onclick="admTab('kdrama',this)">🇰🇷 كورية</button>
         <button class="adm-tab" onclick="admTab('settings',this)">⚙️ الإعدادات</button>
       </div>
       <div class="adm-body">
@@ -676,11 +774,13 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
             <div class="adm-stat-card"><div class="adm-stat-val" id="ds-anime">0</div><div class="adm-stat-lbl">🎌 أنيمي</div></div>
             <div class="adm-stat-card"><div class="adm-stat-val" id="ds-eps">0</div><div class="adm-stat-lbl">📺 حلقة</div></div>
             <div class="adm-stat-card"><div class="adm-stat-val" id="ds-favs">0</div><div class="adm-stat-lbl">❤️ مفضلة</div></div>
+            <div class="adm-stat-card"><div class="adm-stat-val" id="ds-kdrama">0</div><div class="adm-stat-lbl">🇰🇷 كورية</div></div>
           </div>
           <div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:10px;font-weight:700;">⚡ إجراءات سريعة</div>
           <div style="display:flex;flex-direction:column;gap:7px;">
             <button onclick="admTab('anime',document.querySelectorAll('.adm-tab')[1])" class="adm-btn-primary">➕ إضافة أنيمي جديد</button>
             <button onclick="admTab('episodes',document.querySelectorAll('.adm-tab')[2])" class="adm-btn-secondary" style="width:100%;">📤 رفع حلقة جديدة</button>
+            <button onclick="admTab('kdrama',document.querySelectorAll('.adm-tab')[6])" class="adm-btn-secondary" style="width:100%;background:linear-gradient(135deg,rgba(255,101,132,.2),rgba(252,92,101,.1));border-color:rgba(255,101,132,.3);color:#FF6584;">🇰🇷 إضافة مسلسل كوري</button>
           </div>
         </div>
         <div class="adm-pane" id="adm-pane-anime">
@@ -691,8 +791,8 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
             <div class="adm-row3 adm-field"><div><label class="adm-label">عدد الحلقات</label><input class="adm-input" id="af-eps" type="number" min="1" placeholder="12" dir="ltr"></div><div><label class="adm-label">السنة</label><input class="adm-input" id="af-year" type="number" placeholder="2024" dir="ltr"></div><div><label class="adm-label">التقييم</label><input class="adm-input" id="af-rating" type="number" min="1" max="10" step="0.1" placeholder="8.5" dir="ltr"></div></div>
             <div class="adm-row2 adm-field"><div><label class="adm-label">الاستوديو</label><input class="adm-input" id="af-studio" type="text" placeholder="MAPPA"></div><div><label class="adm-label">مدة الحلقة (دقيقة)</label><input class="adm-input" id="af-duration" type="number" placeholder="24" dir="ltr"></div></div>
             <div class="adm-row2 adm-field"><div><label class="adm-label">تاريخ البداية</label><input class="adm-input" id="af-startdate" type="date" dir="ltr" style="color-scheme:dark;"></div><div><label class="adm-label">تاريخ النهاية</label><input class="adm-input" id="af-enddate" type="date" dir="ltr" style="color-scheme:dark;"></div></div>
-            <div class="adm-row2 adm-field"><div><label class="adm-label">الاسم الإنجليزي</label><input class="adm-input" id="af-titleen" type="text" placeholder="English Title" dir="ltr"></div><div><label class="adm-label">المصدر</label><select class="adm-select" id="af-source"><option value="">—</option><option value="مانجا">مانجا</option><option value="رواية خفيفة">رواية خفيفة</option><option value="مانهوا">مانهوا</option><option value="ألعاب">ألعاب</option><option value="أصلي">أصلي</option></select></div></div>
-            <div class="adm-row2 adm-field"><div><label class="adm-label">الحالة</label><select class="adm-select" id="af-status"><option value="جاري">جاري</option><option value="مكتمل">مكتمل</option><option value="قادم">قادم</option></select></div><div><label class="adm-label">لون البطاقة</label><input class="adm-input" id="af-color" type="color" value="#6C63FF" style="height:42px;padding:4px 8px;cursor:pointer;"></div></div>
+            <div class="adm-row3 adm-field"><div><label class="adm-label">الاسم الإنجليزي</label><input class="adm-input" id="af-titleen" type="text" placeholder="English Title" dir="ltr"></div><div><label class="adm-label">المصدر</label><select class="adm-select" id="af-source"><option value="">—</option><option value="مانجا">مانجا</option><option value="رواية خفيفة">رواية خفيفة</option><option value="مانهوا">مانهوا</option><option value="ألعاب">ألعاب</option><option value="أصلي">أصلي</option></select></div><div><label class="adm-label">🌍 المنشأ</label><select class="adm-select" id="af-origin"><option value="كوري">🇰🇷 كوري</option><option value="ياباني">🇯🇵 ياباني</option><option value="صيني">🇨🇳 صيني</option><option value="أخرى">🌐 أخرى</option></select></div></div>
+            <div class="adm-row3 adm-field"><div><label class="adm-label">الحالة</label><select class="adm-select" id="af-status"><option value="جاري">جاري</option><option value="مكتمل">مكتمل</option><option value="قادم">قادم</option></select></div><div><label class="adm-label">النوع</label><select class="adm-select" id="af-type"><option value="مسلسل">📺 مسلسل</option><option value="فلم">🎬 فلم</option></select></div><div><label class="adm-label">لون البطاقة</label><input class="adm-input" id="af-color" type="color" value="#6C63FF" style="height:42px;padding:4px 8px;cursor:pointer;"></div></div>
             <div class="adm-field"><label class="adm-label">الأيقونة</label>
               <div class="emoji-grid">
                 <div class="emoji-opt sel" onclick="selEmoji(this,'⚔️')">⚔️</div><div class="emoji-opt" onclick="selEmoji(this,'🗼')">🗼</div><div class="emoji-opt" onclick="selEmoji(this,'🥊')">🥊</div><div class="emoji-opt" onclick="selEmoji(this,'🧛')">🧛</div><div class="emoji-opt" onclick="selEmoji(this,'👹')">👹</div><div class="emoji-opt" onclick="selEmoji(this,'🪞')">🪞</div><div class="emoji-opt" onclick="selEmoji(this,'🐕')">🐕</div><div class="emoji-opt" onclick="selEmoji(this,'🏺')">🏺</div><div class="emoji-opt" onclick="selEmoji(this,'🌙')">🌙</div><div class="emoji-opt" onclick="selEmoji(this,'🔥')">🔥</div><div class="emoji-opt" onclick="selEmoji(this,'💀')">💀</div><div class="emoji-opt" onclick="selEmoji(this,'🐉')">🐉</div><div class="emoji-opt" onclick="selEmoji(this,'🌸')">🌸</div><div class="emoji-opt" onclick="selEmoji(this,'⚡')">⚡</div><div class="emoji-opt" onclick="selEmoji(this,'🎭')">🎭</div><div class="emoji-opt" onclick="selEmoji(this,'🃏')">🃏</div>
@@ -727,7 +827,15 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
               <div class="src-tabs"><div class="src-tab active" id="ep-src-url" onclick="switchEpSrc('url')">🔗 رابط YouTube/MP4</div><div class="src-tab" id="ep-src-file" onclick="switchEpSrc('file')">📁 من جهازي</div></div>
               <div id="ep-url-panel"><input class="adm-input" id="ep-url" type="text" placeholder="https://youtube.com/..." dir="ltr"></div>
               <div id="ep-file-panel" style="display:none;">
-                <div class="file-drop" id="ep-drop"><input type="file" id="ep-file-input" accept="video/*" onchange="onEpFile(event)"><div class="file-drop-ico" id="ep-drop-ico">🎬</div><div class="file-drop-txt" id="ep-drop-txt">اسحب ملف الفيديو أو اضغط</div><div class="file-drop-sub" id="ep-drop-sub">MP4 · MKV · AVI · WebM</div></div>
+                <div class="file-drop" id="ep-drop" onclick="document.getElementById('ep-file-input').click()">
+                  <input type="file" id="ep-file-input" accept="video/*" style="display:none;" onchange="onEpFile(event)">
+                  <div class="file-drop-ico" id="ep-drop-ico">🎬</div>
+                  <div class="file-drop-txt" id="ep-drop-txt">اسحب ملف الفيديو أو اضغط للاختيار</div>
+                  <div class="file-drop-sub" id="ep-drop-sub">MP4 · MKV · AVI · WebM</div>
+                </div>
+                <button type="button" onclick="document.getElementById('ep-file-input').click()" style="width:100%;margin-top:8px;padding:11px;background:rgba(252,92,101,.12);border:1px solid rgba(252,92,101,.3);border-radius:10px;color:#FC5C65;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;" id="ep-choose-btn">
+                  ❌ اختر ملف فيديو
+                </button>
                 <div class="prog-wrap" id="ep-prog"><div class="prog-bg"><div class="prog-bar" id="ep-prog-bar"></div></div><div class="prog-txt" id="ep-prog-txt"></div></div>
               </div>
             </div>
@@ -780,6 +888,79 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
             <div class="adm-msg" id="cr-msg"></div>
           </div>
         </div>
+        <div class="adm-pane" id="adm-pane-kdrama">
+          <!-- ADD KDRAMA -->
+          <div id="kdrama-form-wrap" style="margin-bottom:16px;">
+            <div style="font-size:12px;font-weight:800;margin-bottom:11px;color:rgba(255,255,255,.7);" id="kdrama-form-title">➕ إضافة مسلسل كوري</div>
+            <div class="adm-row2 adm-field">
+              <div><label class="adm-label">اسم المسلسل *</label><input class="adm-input" id="kd-title" type="text" placeholder="My Mister..."></div>
+              <div><label class="adm-label">التصنيف *</label><input class="adm-input" id="kd-genre" type="text" placeholder="دراما / رومانسي"></div>
+            </div>
+            <div class="adm-field"><label class="adm-label">وصف المسلسل *</label><textarea class="adm-textarea" id="kd-desc" rows="2" placeholder="وصف مختصر..."></textarea></div>
+            <div class="adm-row3 adm-field">
+              <div><label class="adm-label">عدد الحلقات</label><input class="adm-input" id="kd-eps" type="number" min="1" placeholder="16" dir="ltr"></div>
+              <div><label class="adm-label">السنة</label><input class="adm-input" id="kd-year" type="number" placeholder="2024" dir="ltr"></div>
+              <div><label class="adm-label">التقييم</label><input class="adm-input" id="kd-rating" type="number" min="1" max="10" step="0.1" placeholder="8.5" dir="ltr"></div>
+            </div>
+            <div class="adm-row2 adm-field">
+              <div><label class="adm-label">الحالة</label><select class="adm-select" id="kd-status"><option value="جاري">جاري</option><option value="مكتمل">مكتمل</option><option value="قادم">قادم</option></select></div>
+              <div><label class="adm-label">النوع</label><select class="adm-select" id="kd-type"><option value="مسلسل">📺 مسلسل</option><option value="فلم">🎬 فلم</option></select></div>
+            </div>
+            <div class="adm-row2 adm-field">
+              <div><label class="adm-label">الشبكة / القناة</label><input class="adm-input" id="kd-studio" type="text" placeholder="tvN · Netflix · MBC"></div>
+              <div><label class="adm-label">مدة الحلقة (دقيقة)</label><input class="adm-input" id="kd-duration" type="number" placeholder="60" dir="ltr"></div>
+            </div>
+            <div class="adm-row2 adm-field">
+              <div><label class="adm-label">تاريخ البداية</label><input class="adm-input" id="kd-startdate" type="date" dir="ltr" style="color-scheme:dark;"></div>
+              <div><label class="adm-label">تاريخ النهاية</label><input class="adm-input" id="kd-enddate" type="date" dir="ltr" style="color-scheme:dark;"></div>
+            </div>
+            <div class="adm-field"><label class="adm-label">الأيقونة</label>
+              <div class="emoji-grid">
+                <div class="kd-emoji-opt kd-sel" onclick="selKdEmoji(this,'🇰🇷')">🇰🇷</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'💕')">💕</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'👑')">👑</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🌹')">🌹</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🏥')">🏥</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'⚖️')">⚖️</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🕵️')">🕵️</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🎭')">🎭</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🌸')">🌸</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'💼')">💼</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🔥')">🔥</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'💀')">💀</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🎬')">🎬</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🌙')">🌙</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'⚡')">⚡</div>
+                <div class="kd-emoji-opt" onclick="selKdEmoji(this,'🃏')">🃏</div>
+              </div>
+              <input type="hidden" id="kd-emoji" value="🇰🇷">
+            </div>
+            <div class="adm-field"><label class="adm-label">🖼️ صورة الغلاف</label>
+              <div class="src-tabs">
+                <div class="src-tab active" id="kd-img-src-url" onclick="switchKdImgSrc('url')">🔗 رابط</div>
+                <div class="src-tab" id="kd-img-src-file" onclick="switchKdImgSrc('file')">📁 من جهازي</div>
+              </div>
+              <div id="kd-img-url-panel"><input class="adm-input" id="kd-img-url" type="text" placeholder="https://..." dir="ltr"></div>
+              <div id="kd-img-file-panel" style="display:none;">
+                <div class="file-drop" id="kd-img-drop">
+                  <input type="file" id="kd-img-file" accept="image/*" onchange="onKdImgFile(event)">
+                  <div id="kd-img-preview-wrap" style="display:none;margin-bottom:8px;"><img id="kd-img-preview" src="" alt="" style="width:80px;height:110px;object-fit:cover;border-radius:8px;border:2px solid rgba(255,101,100,.4);"></div>
+                  <div class="file-drop-ico" id="kd-img-drop-ico">🖼️</div>
+                  <div class="file-drop-txt" id="kd-img-drop-txt">اضغط لاختيار صورة الغلاف</div>
+                  <div class="file-drop-sub" id="kd-img-drop-sub">JPG · PNG · WebP</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:7px;">
+              <button class="adm-btn-primary" onclick="saveKdrama()" id="kd-save-btn" style="flex:1;background:linear-gradient(135deg,#FF6584,#FC5C65);">💾 حفظ المسلسل</button>
+              <button onclick="cancelEditKdrama()" id="kd-cancel-btn" style="display:none;" class="adm-btn-secondary">إلغاء</button>
+            </div>
+            <div class="adm-msg" id="kd-msg"></div>
+          </div>
+          <!-- LIST -->
+          <div style="font-size:12px;font-weight:800;margin-bottom:10px;color:rgba(255,255,255,.5);">📋 قائمة المسلسلات الكورية (<span id="kdrama-list-count">0</span>)</div>
+          <div id="adm-kdrama-list"></div>
+        </div>
         <div class="adm-pane" id="adm-pane-settings">
           <div class="adm-srow"><div><div class="adm-slabel">🔐 تغيير كلمة المرور</div></div><button class="adm-btn-sm" onclick="toggleEl('pw-form')">تغيير</button></div>
           <div id="pw-form" style="display:none;padding:12px 0;"><div class="adm-field"><label class="adm-label">كلمة المرور الجديدة</label><input class="adm-input" id="new-pw" type="password" dir="ltr"></div><button onclick="changePw()" class="adm-btn-primary" style="width:auto;padding:8px 18px;">حفظ</button><div class="adm-msg" id="pw-msg"></div></div>
@@ -811,14 +992,14 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
 <script>
 // ===== DATA =====
 var DEFAULT_ANIMES=[
-  {id:1,title:"Solo Leveling",genre:"أكشن / فانتازيا",episodes:12,rating:9.5,status:"مكتمل",year:2024,img:"⚔️",color:"#6C63FF",desc:"يصبح أضعف صياد في العالم أقوى مقاتل في التاريخ بعد اكتشافه لنظام سري غامض",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Solo Leveling",source:"مانهوا"},
-  {id:2,title:"Tower of God",genre:"مغامرة / فانتازيا",episodes:13,rating:8.7,status:"جاري",year:2020,img:"🗼",color:"#FF6584",desc:"فتى يتسلق برجاً غامضاً بحثاً عن صديقته وفي كل طابق تحديات مستحيلة",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Tower of God",source:"مانهوا"},
-  {id:3,title:"The God of High School",genre:"أكشن / فنون قتالية",episodes:13,rating:8.5,status:"مكتمل",year:2020,img:"🥊",color:"#F7B731",desc:"بطولة قتالية تجمع أقوى المقاتلين وتخفي أسراراً خارقة للطبيعة",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"The God of High School",source:"مانهوا"},
-  {id:4,title:"Noblesse",genre:"خارق / دراما",episodes:13,rating:8.2,status:"مكتمل",year:2020,img:"🧛",color:"#26de81",desc:"نبيل مصاص دماء يستيقظ بعد 820 عاماً في عالم تغير كثيراً",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Noblesse",source:"مانهوا"},
-  {id:5,title:"Hellbound",genre:"رعب / غموض",episodes:6,rating:8.3,status:"مكتمل",year:2021,img:"👹",color:"#FC5C65",desc:"كائنات جهنمية مرعبة تظهر فجأة لتنفيذ أحكام إلهية على البشر",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Hellbound",source:"مانهوا"},
-  {id:6,title:"Lookism",genre:"دراما / اجتماعي",episodes:8,rating:8.0,status:"مكتمل",year:2022,img:"🪞",color:"#45AAF2",desc:"شاب يكتشف قدرته الغريبة على التنقل بين جسدين مختلفين تماماً",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Lookism",source:"مانهوا"},
-  {id:7,title:"Bloodhounds",genre:"أكشن / جريمة",episodes:8,rating:8.4,status:"مكتمل",year:2023,img:"🐕",color:"#FD9644",desc:"ملاكمان شابان يواجهان شبكة إجرامية خطيرة تسيطر على سوق القروض",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Bloodhounds",source:"أصلي"},
-  {id:8,title:"Tomb Raider King",genre:"مغامرة / تاريخ",episodes:16,rating:8.1,status:"جاري",year:2023,img:"🏺",color:"#A55EEA",desc:"صائد مقابر يُعاد إلى الماضي ليغير مصيره ومصير العالم",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Tomb Raider King",source:"مانهوا"}
+  {id:1,title:"Solo Leveling",genre:"أكشن / فانتازيا",episodes:12,rating:9.5,status:"مكتمل",year:2024,img:"⚔️",color:"#6C63FF",desc:"يصبح أضعف صياد في العالم أقوى مقاتل في التاريخ بعد اكتشافه لنظام سري غامض",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Solo Leveling",source:"مانهوا",animeType:"مسلسل",origin:"كوري"},
+  {id:2,title:"Tower of God",genre:"مغامرة / فانتازيا",episodes:13,rating:8.7,status:"جاري",year:2020,img:"🗼",color:"#FF6584",desc:"فتى يتسلق برجاً غامضاً بحثاً عن صديقته وفي كل طابق تحديات مستحيلة",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Tower of God",source:"مانهوا",animeType:"مسلسل",origin:"كوري"},
+  {id:3,title:"The God of High School",genre:"أكشن / فنون قتالية",episodes:13,rating:8.5,status:"مكتمل",year:2020,img:"🥊",color:"#F7B731",desc:"بطولة قتالية تجمع أقوى المقاتلين وتخفي أسراراً خارقة للطبيعة",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"The God of High School",source:"مانهوا",animeType:"مسلسل",origin:"كوري"},
+  {id:4,title:"Noblesse",genre:"خارق / دراما",episodes:13,rating:8.2,status:"مكتمل",year:2020,img:"🧛",color:"#26de81",desc:"نبيل مصاص دماء يستيقظ بعد 820 عاماً في عالم تغير كثيراً",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Noblesse",source:"مانهوا",animeType:"مسلسل",origin:"كوري"},
+  {id:5,title:"Hellbound",genre:"رعب / غموض",episodes:6,rating:8.3,status:"مكتمل",year:2021,img:"👹",color:"#FC5C65",desc:"كائنات جهنمية مرعبة تظهر فجأة لتنفيذ أحكام إلهية على البشر",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Hellbound",source:"مانهوا",animeType:"مسلسل",origin:"كوري"},
+  {id:6,title:"Lookism",genre:"دراما / اجتماعي",episodes:8,rating:8.0,status:"مكتمل",year:2022,img:"🪞",color:"#45AAF2",desc:"شاب يكتشف قدرته الغريبة على التنقل بين جسدين مختلفين تماماً",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Lookism",source:"مانهوا",animeType:"مسلسل",origin:"كوري"},
+  {id:7,title:"Bloodhounds",genre:"أكشن / جريمة",episodes:8,rating:8.4,status:"مكتمل",year:2023,img:"🐕",color:"#FD9644",desc:"ملاكمان شابان يواجهان شبكة إجرامية خطيرة تسيطر على سوق القروض",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Bloodhounds",source:"أصلي",animeType:"مسلسل",origin:"كوري"},
+  {id:8,title:"Tomb Raider King",genre:"مغامرة / تاريخ",episodes:16,rating:8.1,status:"جاري",year:2023,img:"🏺",color:"#A55EEA",desc:"صائد مقابر يُعاد إلى الماضي ليغير مصيره ومصير العالم",cover:"",studio:"",duration:24,startDate:"",endDate:"",titleEn:"Tomb Raider King",source:"مانهوا",animeType:"مسلسل",origin:"كوري"}
 ];
 function getAnimes(){return JSON.parse(localStorage.getItem('ka_animes')||'null')||JSON.parse(JSON.stringify(DEFAULT_ANIMES));}
 function saveAnimes(a){localStorage.setItem('ka_animes',JSON.stringify(a));}
@@ -838,7 +1019,7 @@ function saveComments(animeId,arr){localStorage.setItem('ka_comments_'+animeId,J
 function getEpComments(epId){return JSON.parse(localStorage.getItem('ka_epcomments_'+epId)||'[]');}
 function saveEpComments(epId,arr){localStorage.setItem('ka_epcomments_'+epId,JSON.stringify(arr));}
 
-var animes=getAnimes(),favorites=getFavs(),currentAnime=null,watchAnimeId=null,currentCat='الكل',editingAnimeId=null,selectedEmoji='⚔️',imgSrcMode='url',epSrcMode='url',epFileData=null,imgFileData=null,admLoggedIn=false,currentEpId=null,watchTabActive='episodes';
+var animes=getAnimes(),favorites=getFavs(),currentAnime=null,watchAnimeId=null,currentCat='الكل',currentTypeFilter='الكل',editingAnimeId=null,selectedEmoji='⚔️',imgSrcMode='url',epSrcMode='url',epFileData=null,imgFileData=null,admLoggedIn=false,currentEpId=null,watchTabActive='episodes';
 
 var CR_LABELS={violence:{label:'عنف ودموية',icon:'🩸'},language:{label:'ألفاظ نابية',icon:'🤬'},mature:{label:'مشاهد غير لائقة',icon:'🔞'},horror:{label:'مشاهد مخيفة',icon:'😱'},drugs:{label:'مخدرات وتدخين',icon:'🚬'}};
 var CR_LEVELS={none:{label:'لا يوجد',color:'green',pct:0},mild:{label:'خفيف',color:'green',pct:33},moderate:{label:'متوسط',color:'yellow',pct:66},strong:{label:'شديد',color:'red',pct:100}};
@@ -872,6 +1053,7 @@ function sbGo(page){
   if(page==='favs'){document.getElementById('fav-nav-btn').classList.add('active');renderFavs();}
   if(page==='top')renderTopPage();
   if(page==='schedule')renderSchedulePage();
+  if(page==='kdrama')renderKdramaPage();
   if(page==='recommend')renderRecommendPage();
   if(page==='history')renderHistoryPage();
   if(page==='mylist')renderMylist('watching');
@@ -890,10 +1072,11 @@ function buildCatBar(){
   animes.forEach(function(a){a.genre.split('/').forEach(function(g){var t=g.trim();if(cats.indexOf(t)===-1)cats.push(t);});});
   document.getElementById('cat-bar').innerHTML=cats.map(function(c){return '<button class="cat-btn'+(c===currentCat?' active':'')+'" onclick="setCat(\''+c+'\',this)">'+c+'</button>';}).join('');
 }
-function setCat(cat,btn){currentCat=cat;document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');filterAnime();}
+function setCat(cat,btn){currentCat=cat;document.querySelectorAll('#cat-bar .cat-btn').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');filterAnime();}
+function setTypeFilter(type,btn){currentTypeFilter=type;['type-all-btn','type-series-btn','type-movie-btn'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('active');});if(btn)btn.classList.add('active');filterAnime();}
 function filterAnime(){
   var q=document.getElementById('search-input').value.toLowerCase();
-  var f=animes.filter(function(a){var mc=currentCat==='الكل'||a.genre.indexOf(currentCat)!==-1;var mq=a.title.toLowerCase().indexOf(q)!==-1||a.desc.indexOf(q)!==-1||a.genre.indexOf(q)!==-1;return mc&&mq;});
+  var f=animes.filter(function(a){var mc=currentCat==='الكل'||a.genre.indexOf(currentCat)!==-1;var mt=currentTypeFilter==='الكل'||(a.animeType||'مسلسل')===currentTypeFilter;var mq=a.title.toLowerCase().indexOf(q)!==-1||a.desc.indexOf(q)!==-1||a.genre.indexOf(q)!==-1;return mc&&mt&&mq;});
   document.getElementById('result-count').textContent=f.length+' نتيجة';
   var grid=document.getElementById('anime-grid');
   if(!f.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🔍</div><div class="empty-text">لا توجد نتائج</div></div>';return;}
@@ -917,6 +1100,7 @@ function makeCard(a,delay){
     +'<span class="card-status-dot '+stCls+'">'+a.status+'</span>'
     +'<button class="fav-btn" onclick="event.stopPropagation();toggleFav('+a.id+')" id="fav-card-'+a.id+'">'+(isFav?'❤️':'🤍')+'</button>'
     +epBadge
+    +(a.animeType?'<div style="position:absolute;bottom:'+(latestEp>0?'28':'8')+'px;left:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);color:'+(a.animeType==='فلم'?'#F7B731':'#26de81')+';font-size:9px;font-weight:800;padding:2px 7px;border-radius:6px;z-index:3;direction:rtl;">'+(a.animeType==='فلم'?'🎬 فلم':'📺 مسلسل')+'</div>':'')
     +'</div>'
     +'<div class="card-body"><div class="card-title">'+escHtml(a.title)+'</div>'
     +'<div class="card-meta"><span class="card-status-txt">'+a.status+'</span><span class="card-dot"></span><span class="card-rating">★ '+a.rating+'</span></div>'
@@ -965,7 +1149,7 @@ function closeSidebar(){
 
 // ===== MODAL =====
 function openModal(id){
-  var a=animes.find(function(x){return x.id===id;});if(!a)return;
+  var a=animes.find(function(x){return x.id===id;})||getKdrama().find(function(x){return x.id===id;});if(!a)return;
   currentAnime=a;
   var isFav=getFavs().indexOf(id)!==-1;
   // hero
@@ -991,7 +1175,7 @@ function openModal(id){
   // desc
   document.getElementById('modal-desc').textContent=a.desc;
   // info grid
-  var items=[{k:'الحالة',v:a.status||'—'},{k:'السنة',v:a.year||'—'},{k:'الحلقات',v:a.episodes?a.episodes+' حلقة':'—'},{k:'مدة الحلقة',v:a.duration?a.duration+' دقيقة':'—'},{k:'الاستوديو',v:a.studio||'—'},{k:'المصدر',v:a.source||'—'},{k:'عرض من',v:a.startDate||'—'},{k:'إلى',v:a.endDate||'—'},{k:'الاسم الإنجليزي',v:a.titleEn||a.title},{k:'التصنيف',v:a.genre||'—'}];
+  var items=[{k:'الحالة',v:a.status||'—'},{k:'النوع',v:(a.animeType==='فلم'?'🎬 فلم':'📺 مسلسل')},{k:'المنشأ',v:a.origin||'كوري'},{k:'السنة',v:a.year||'—'},{k:'الحلقات',v:a.episodes?a.episodes+' حلقة':'—'},{k:'مدة الحلقة',v:a.duration?a.duration+' دقيقة':'—'},{k:'الاستوديو',v:a.studio||'—'},{k:'المصدر',v:a.source||'—'},{k:'عرض من',v:a.startDate||'—'},{k:'إلى',v:a.endDate||'—'},{k:'الاسم الإنجليزي',v:a.titleEn||a.title},{k:'التصنيف',v:a.genre||'—'}];
   document.getElementById('modal-info-grid').innerHTML=items.map(function(i){return '<div class="modal-info-cell"><div class="modal-info-key">'+escHtml(i.k)+'</div><div class="modal-info-val">'+escHtml(String(i.v))+'</div></div>';}).join('');
   document.getElementById('modal-watch-btn').style.background='linear-gradient(135deg,'+a.color+','+a.color+'99)';
   // eps
@@ -1314,6 +1498,9 @@ function stopPlayer(){
   playerIsPlaying=false;
   document.getElementById('play-icon').textContent='▶';
   document.getElementById('subtitle-overlay').style.display='none';
+  document.getElementById('cc-subtitle-bar').style.display='none';
+  stopCCInterval();
+  if(autoSubOn)stopAutoSub();
 }
 function initPlayer(src,title,ep){
   var vid=document.getElementById('player-video');
@@ -1428,42 +1615,400 @@ document.addEventListener('click',function(e){
   var pw=document.getElementById('player-wrap');if(pw&&pw.contains(e.target))showOverlay();
 });
 
-// ===== PLAYER SUBTITLE TRANSLATOR =====
-var playerRecog=null,playerMicOn=false,playerSubHist=[];
-function togglePlayerSubtrans(){
-  playerSubtransOn=!playerSubtransOn;
-  var btn=document.getElementById('subtrans-btn');
-  if(playerSubtransOn){btn.classList.add('active');btn.textContent='🎙️🔴';startPlayerSubtrans();}
-  else{btn.classList.remove('active');btn.textContent='🎙️';stopPlayerSubtrans();document.getElementById('subtitle-overlay').style.display='none';}
+// ===== CC SUBTITLE SYSTEM =====
+var ccActive=false, ccSubs=[], ccTab='srt', ccInterval=null;
+
+function toggleCC(){
+  var panel=document.getElementById('cc-panel');
+  ccActive=!ccActive;
+  var btn=document.getElementById('cc-btn');
+  if(ccActive){
+    panel.style.display='block';
+    btn.style.background='rgba(108,99,255,.35)';
+    btn.style.borderColor='rgba(108,99,255,.7)';
+    btn.style.color='#fff';
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  } else {
+    closeCC();
+  }
 }
-async function translateSubtitle(text,lang){
-  try{var r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+lang.split('-')[0]+'|ar');var d=await r.json();if(d.responseStatus===200)return d.responseData.translatedText;}catch(e){}return null;
+function closeCC(){
+  ccActive=false;
+  document.getElementById('cc-panel').style.display='none';
+  var btn=document.getElementById('cc-btn');
+  if(btn){btn.style.background='';btn.style.borderColor='rgba(255,255,255,.3)';btn.style.color='';}
 }
-function startPlayerSubtrans(){
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('استخدم Chrome للترجمة الصوتية');return;}
-  var lang=document.getElementById('lsel')?document.getElementById('lsel').value:'ko-KR';
-  playerRecog=new SR();playerRecog.lang=lang;playerRecog.continuous=true;playerRecog.interimResults=true;
+function switchCCTab(tab){
+  ccTab=tab;
+  ['srt','manual','off'].forEach(function(t){
+    document.getElementById('cc-tab-'+t).classList.toggle('active',t===tab);
+    var panel=document.getElementById('cc-'+t+'-panel');
+    if(panel)panel.style.display=t===tab?'block':'none';
+  });
+  document.getElementById('cc-settings-row').style.display=tab==='off'?'none':'flex';
+  if(tab==='off'){
+    stopCCInterval();
+    document.getElementById('cc-subtitle-bar').style.display='none';
+    var btn=document.getElementById('cc-btn');
+    if(btn){btn.style.background='rgba(252,92,101,.2)';btn.style.borderColor='rgba(252,92,101,.5)';btn.style.color='#FC5C65';}
+  } else {
+    if(ccSubs.length)startCCInterval();
+  }
+}
+
+// ===== SRT PARSER =====
+function parseSRT(text){
+  var subs=[];
+  // Normalize line endings
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var blocks=text.split(/\n\n+/);
+  blocks.forEach(function(block){
+    var lines=block.trim().split('\n');
+    if(lines.length<2)return;
+    var start=0,idx=0;
+    // Skip index number line
+    if(/^\d+$/.test(lines[0].trim()))idx=1;
+    var timeLine=lines[idx];
+    if(!timeLine)return;
+    var m=timeLine.match(/(\d{1,2}):(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(\d{1,2}):(\d{2}):(\d{2})[.,](\d{3})/);
+    if(!m)return;
+    var s=parseInt(m[1])*3600+parseInt(m[2])*60+parseInt(m[3])+parseInt(m[4])/1000;
+    var e=parseInt(m[5])*3600+parseInt(m[6])*60+parseInt(m[7])+parseInt(m[8])/1000;
+    var txt=lines.slice(idx+1).join(' ').replace(/<[^>]+>/g,'').trim();
+    if(txt)subs.push({s:s,e:e,t:txt});
+  });
+  return subs;
+}
+
+// ===== VTT PARSER =====
+function parseVTT(text){
+  var subs=[];
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var blocks=text.split(/\n\n+/);
+  blocks.forEach(function(block){
+    var lines=block.trim().split('\n');
+    var timeLine=lines.find(function(l){return l.indexOf('-->')!==-1;});
+    if(!timeLine)return;
+    var m=timeLine.match(/(\d{2}):(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(\d{2}):(\d{2}):(\d{2})[.,](\d{3})/);
+    if(!m){m=timeLine.match(/(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(\d{2}):(\d{2})[.,](\d{3})/);
+      if(m){var s2=parseInt(m[1])*60+parseInt(m[2])+parseInt(m[3])/1000;var e2=parseInt(m[4])*60+parseInt(m[5])+parseInt(m[6])/1000;var tIdx2=lines.indexOf(timeLine)+1;var txt2=lines.slice(tIdx2).join(' ').replace(/<[^>]+>/g,'').trim();if(txt2)subs.push({s:s2,e:e2,t:txt2});return;}
+    }
+    if(!m)return;
+    var s=parseInt(m[1])*3600+parseInt(m[2])*60+parseInt(m[3])+parseInt(m[4])/1000;
+    var e=parseInt(m[5])*3600+parseInt(m[6])*60+parseInt(m[7])+parseInt(m[8])/1000;
+    var tIdx=lines.indexOf(timeLine)+1;
+    var txt=lines.slice(tIdx).join(' ').replace(/<[^>]+>/g,'').trim();
+    if(txt)subs.push({s:s,e:e,t:txt});
+  });
+  return subs;
+}
+
+function onCCFile(event){
+  var file=event.target.files[0];if(!file)return;
+  loadCCFileObj(file);
+}
+function onCCDrop(event){
+  event.preventDefault();
+  document.getElementById('cc-drop-zone').style.borderColor='rgba(255,255,255,.15)';
+  var file=event.dataTransfer.files[0];if(!file)return;
+  loadCCFileObj(file);
+}
+function loadCCFileObj(file){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var text=e.target.result;
+    var ext=file.name.split('.').pop().toLowerCase();
+    if(ext==='vtt')ccSubs=parseVTT(text);
+    else ccSubs=parseSRT(text);
+    var status=document.getElementById('cc-srt-status');
+    if(ccSubs.length){
+      document.getElementById('cc-drop-icon').textContent='✅';
+      document.getElementById('cc-drop-txt').textContent=file.name+' · '+ccSubs.length+' سطر';
+      status.style.display='block';status.style.background='rgba(38,222,129,.1)';status.style.color='#26de81';
+      status.textContent='✅ تم تحميل '+ccSubs.length+' سطر ترجمة';
+      startCCInterval();
+    } else {
+      status.style.display='block';status.style.background='rgba(252,92,101,.1)';status.style.color='#FC5C65';
+      status.textContent='❌ لم يتم التعرف على الملف — تأكد من صيغة SRT';
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function loadManualCC(){
+  var raw=document.getElementById('cc-manual-input').value.trim();
+  var msg=document.getElementById('cc-manual-msg');
+  if(!raw){msg.style.display='block';msg.style.color='#FC5C65';msg.textContent='❌ أدخل بيانات الترجمة';return;}
+  ccSubs=[];
+  var lines=raw.split('\n');
+  lines.forEach(function(line){
+    line=line.trim();if(!line)return;
+    var m=line.match(/^(\d+)-(\d+)\|(.+)$/);
+    if(m)ccSubs.push({s:parseInt(m[1]),e:parseInt(m[2]),t:m[3].trim()});
+  });
+  if(ccSubs.length){
+    msg.style.display='block';msg.style.color='#26de81';msg.textContent='✅ تم تطبيق '+ccSubs.length+' سطر';
+    startCCInterval();
+  } else {
+    msg.style.display='block';msg.style.color='#FC5C65';msg.textContent='❌ تأكد من الصيغة: 0-4|النص';
+  }
+}
+
+var ccSize=16,ccPos='bottom';
+function updateCCSize(val){
+  ccSize=parseInt(val);
+  document.getElementById('cc-size-val').textContent=val+'px';
+  document.getElementById('cc-subtitle-text').style.fontSize=val+'px';
+}
+function updateCCPos(val){
+  ccPos=val;
+  var bar=document.getElementById('cc-subtitle-bar');
+  if(val==='top'){bar.style.bottom='auto';bar.style.top='54px';}
+  else{bar.style.top='auto';bar.style.bottom='54px';}
+}
+
+function startCCInterval(){
+  stopCCInterval();
+  document.getElementById('cc-subtitle-bar').style.display='block';
+  var btn=document.getElementById('cc-btn');
+  if(btn){btn.style.background='rgba(38,222,129,.25)';btn.style.borderColor='rgba(38,222,129,.6)';btn.style.color='#26de81';}
+  ccInterval=setInterval(function(){
+    var vid=document.getElementById('player-video');
+    if(!vid||!vid.src||vid.paused)return;
+    var t=vid.currentTime;
+    var cur=null;
+    for(var i=0;i<ccSubs.length;i++){if(t>=ccSubs[i].s&&t<=ccSubs[i].e){cur=ccSubs[i];break;}}
+    var bar=document.getElementById('cc-subtitle-bar');
+    var txt=document.getElementById('cc-subtitle-text');
+    if(cur){bar.style.display='block';txt.textContent=cur.t;}
+    else{txt.textContent='';}
+  },150);
+}
+function stopCCInterval(){
+  if(ccInterval){clearInterval(ccInterval);ccInterval=null;}
+}
+
+// ===== AUTO SUBTITLE TRANSLATOR =====
+var autoSubRecog=null, autoSubOn=false, autoSubLang='ko-KR', autoSubRetryTimer=null;
+var translateCache={}, translateQueue=[], translateBusy=false;
+
+// Keep old togglePlayerSubtrans for compatibility
+function togglePlayerSubtrans(){toggleAutoSub();}
+
+function toggleAutoSub(){
+  var panel=document.getElementById('autosub-panel');
+  if(!autoSubOn){
+    // Show panel to let user pick language
+    panel.style.display=panel.style.display==='block'?'none':'block';
+    if(panel.style.display==='block')panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  } else {
+    stopAutoSub();
+  }
+}
+
+function setAutoLang(btn,lang){
+  autoSubLang=lang;
+  document.querySelectorAll('.lang-opt-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+}
+
+function startAutoSub(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    showAutoSubStatus('❌ يحتاج متصفح Chrome — استخدم Chrome للترجمة التلقائية','#FC5C65');
+    return;
+  }
+  document.getElementById('autosub-panel').style.display='none';
+  autoSubOn=true;
+  updateAutoSubBtn(true);
+  showAutoSubStatus('🎙️ جاري الاستماع...','#F7B731');
   document.getElementById('subtitle-overlay').style.display='block';
   document.getElementById('subtitle-text').textContent='...';
-  playerRecog.onresult=async function(ev){
-    var res=ev.results[ev.results.length-1];var txt=res[0].transcript.trim();
-    if(!res.isFinal){document.getElementById('subtitle-text').textContent=txt;return;}
-    if(!txt)return;
-    var tr=await translateSubtitle(txt,lang);
-    document.getElementById('subtitle-text').textContent=tr||txt;
-  };
-  playerRecog.onerror=function(){};
-  playerRecog.onend=function(){if(playerMicOn)playerRecog.start();};
-  playerMicOn=true;playerRecog.start();
+  startRecognition();
 }
-function stopPlayerSubtrans(){
-  playerMicOn=false;
-  if(playerRecog){playerRecog.onend=null;playerRecog.stop();playerRecog=null;}
+
+function startRecognition(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR||!autoSubOn)return;
+  try{
+    autoSubRecog=new SR();
+    autoSubRecog.lang=autoSubLang;
+    autoSubRecog.continuous=true;
+    autoSubRecog.interimResults=true;
+    autoSubRecog.maxAlternatives=1;
+
+    autoSubRecog.onstart=function(){
+      showAutoSubStatus('🟢 الترجمة التلقائية تعمل','#26de81');
+    };
+
+    autoSubRecog.onresult=function(ev){
+      var results=ev.results;
+      var last=results[results.length-1];
+      var transcript=last[0].transcript.trim();
+      if(!transcript)return;
+
+      if(!last.isFinal){
+        document.getElementById('subtitle-text').style.opacity='0.6';
+        document.getElementById('subtitle-text').textContent=transcript;
+        return;
+      }
+
+      document.getElementById('subtitle-text').style.opacity='1';
+      // If source is Arabic, show directly without translation
+      if(autoSubLang.startsWith('ar')){
+        if(autoSubOn){
+          document.getElementById('subtitle-text').textContent=transcript;
+          clearTimeout(window._subHideTimer);
+          window._subHideTimer=setTimeout(function(){
+            if(autoSubOn){document.getElementById('subtitle-text').textContent='';}
+          },4000);
+        }
+        return;
+      }
+      // Otherwise translate to Arabic
+      translateText(transcript, autoSubLang.split('-')[0], function(translated){
+        if(autoSubOn){
+          document.getElementById('subtitle-text').textContent=translated||transcript;
+          clearTimeout(window._subHideTimer);
+          window._subHideTimer=setTimeout(function(){
+            if(autoSubOn){document.getElementById('subtitle-text').textContent='';}
+          },4000);
+        }
+      });
+    };
+
+    autoSubRecog.onerror=function(e){
+      if(e.error==='no-speech')return; // normal, ignore
+      if(e.error==='not-allowed'){
+        showAutoSubStatus('❌ لم يُسمح بالوصول للميكروفون','#FC5C65');
+        stopAutoSub();return;
+      }
+    };
+
+    autoSubRecog.onend=function(){
+      // Auto-restart if still active
+      if(autoSubOn){
+        clearTimeout(autoSubRetryTimer);
+        autoSubRetryTimer=setTimeout(startRecognition,300);
+      }
+    };
+
+    autoSubRecog.start();
+  }catch(err){
+    if(autoSubOn){
+      clearTimeout(autoSubRetryTimer);
+      autoSubRetryTimer=setTimeout(startRecognition,1000);
+    }
+  }
 }
+
+function stopAutoSub(){
+  autoSubOn=false;
+  updateAutoSubBtn(false);
+  if(autoSubRecog){try{autoSubRecog.onend=null;autoSubRecog.stop();}catch(e){}autoSubRecog=null;}
+  clearTimeout(autoSubRetryTimer);clearTimeout(window._subHideTimer);
+  document.getElementById('subtitle-overlay').style.display='none';
+  document.getElementById('subtitle-text').textContent='';
+  showAutoSubStatus('','');
+}
+
+function updateAutoSubBtn(on){
+  var btn=document.getElementById('autosub-btn');
+  if(!btn)return;
+  if(on){
+    btn.textContent='■ إيقاف';
+    btn.style.background='rgba(38,222,129,.25)';
+    btn.style.borderColor='rgba(38,222,129,.6)';
+    btn.style.color='#26de81';
+  } else {
+    btn.textContent='ترجمة';
+    btn.style.background='';
+    btn.style.borderColor='rgba(255,255,255,.25)';
+    btn.style.color='';
+  }
+  var startBtn=document.getElementById('autosub-start-btn');
+  if(startBtn){
+    startBtn.textContent=on?'■ إيقاف الترجمة':'▶ تشغيل الترجمة التلقائية';
+    startBtn.style.background=on?'linear-gradient(135deg,#FC5C65,#FF6584)':'linear-gradient(135deg,#6C63FF,#8B5CF6)';
+  }
+}
+
+function showAutoSubStatus(msg,color){
+  var el=document.getElementById('autosub-status');
+  if(!el)return;
+  if(!msg){el.style.display='none';return;}
+  el.style.display='block';
+  el.style.background=color==='#26de81'?'rgba(38,222,129,.1)':color==='#FC5C65'?'rgba(252,92,101,.1)':'rgba(247,183,49,.1)';
+  el.style.color=color;
+  el.style.border='1px solid '+color+'44';
+  el.textContent=msg;
+}
+
+// ===== TRANSLATION ENGINE =====
+// Multi-provider translation with fallback
+async function translateText(text, srcLang, callback){
+  if(!text||text.length<2){callback(text);return;}
+
+  // Check cache first
+  var cacheKey=srcLang+'|'+text;
+  if(translateCache[cacheKey]){callback(translateCache[cacheKey]);return;}
+
+  // Try multiple translation providers
+  var result=null;
+
+  // Provider 1: MyMemory (free, no key needed)
+  try{
+    var r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+srcLang+'|ar&de=user@example.com',{signal:AbortSignal.timeout(4000)});
+    var d=await r.json();
+    if(d.responseStatus===200&&d.responseData&&d.responseData.translatedText&&d.responseData.translatedText!==text){
+      result=d.responseData.translatedText;
+    }
+  }catch(e){}
+
+  // Provider 2: LibreTranslate public instance (fallback)
+  if(!result){
+    try{
+      var r2=await fetch('https://libretranslate.com/translate',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({q:text,source:srcLang,target:'ar',format:'text'}),
+        signal:AbortSignal.timeout(4000)
+      });
+      var d2=await r2.json();
+      if(d2.translatedText&&d2.translatedText!==text)result=d2.translatedText;
+    }catch(e){}
+  }
+
+  if(result){
+    translateCache[cacheKey]=result;
+    // Keep cache size manageable
+    var keys=Object.keys(translateCache);
+    if(keys.length>200)delete translateCache[keys[0]];
+  }
+
+  callback(result||text);
+}
+
+// Also keep async version for CC system compatibility
+async function translateSubtitle(text,lang){
+  return new Promise(function(resolve){
+    translateText(text,lang.split('-')[0],function(r){resolve(r);});
+  });
+}
+
 
 // ===== PLAY EPISODE =====
 function playEp(id){
   var ep=getEps().find(function(e){return e.id===id;});if(!ep)return;
+  // Resolve blob reference if stored in memory map
+  if(ep.videoSrc&&ep.videoSrc.startsWith('blob_ref:')){
+    var blobId=parseInt(ep.videoSrc.replace('blob_ref:',''));
+    if(window._epBlobMap&&window._epBlobMap[blobId]){
+      ep=Object.assign({},ep,{videoSrc:window._epBlobMap[blobId]});
+    } else {
+      showMsg('ep-msg','⚠️ الملف غير متاح — أعد فتح الصفحة لإعادة ربط الملف','warn',0);return;
+    }
+  }
   var anime=animes.find(function(a){return a.id===ep.animeId;});
   currentEpId=id;
   document.querySelectorAll('.ep-row').forEach(function(r){r.classList.remove('playing');var pi=r.querySelector('.ep-play');if(pi)pi.textContent='▶';});
@@ -1543,6 +2088,15 @@ function renderSchedulePage(){
   });
   c.innerHTML=html||'<div class="empty"><div class="empty-icon">🗓️</div><div class="empty-text">لا توجد مواعيد</div></div>';
 }
+function renderKdramaPage(){
+  var kdrama=getKdrama();
+  var g=document.getElementById('kdrama-grid');
+  var em=document.getElementById('kdrama-empty');
+  if(!kdrama.length){if(g)g.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  if(g)g.innerHTML=kdrama.map(function(a,i){return makeCard(a,i*0.06);}).join('');
+}
+
 function renderRecommendPage(){
   var favIds=getFavs();var allA=animes;var rec;
   if(favIds.length){
@@ -1597,9 +2151,10 @@ function admTab(name,btn){
   if(name==='appearance'){applyAppearance();loadContactFields();}
   if(name==='announce'){var a=getAnnounce();if(a){document.getElementById('announce-text').value=a.text;document.getElementById('announce-type').value=a.type;showAnnouncePreview(a);}else document.getElementById('announce-preview-wrap').style.display='none';}
   if(name==='content'){populateCrSel();loadCrForm();}
+  if(name==='kdrama'){renderAdmKdramaList();}
   if(name==='settings'){var locked=localStorage.getItem('ka_locked')==='1';document.getElementById('lockapp-btn').textContent=locked?'مفعّل ✅':'قيد التشغيل';}
 }
-function updateDash(){document.getElementById('ds-anime').textContent=getAnimes().length;document.getElementById('ds-eps').textContent=getEps().length;document.getElementById('ds-favs').textContent=getFavs().length;}
+function updateDash(){document.getElementById('ds-anime').textContent=getAnimes().length;document.getElementById('ds-eps').textContent=getEps().length;document.getElementById('ds-favs').textContent=getFavs().length;var kdEl=document.getElementById('ds-kdrama');if(kdEl)kdEl.textContent=getKdrama().length;}
 
 // ANIME FORM
 var selEmoji_='⚔️';
@@ -1627,6 +2182,7 @@ function saveAnime(){
   var year=parseInt(document.getElementById('af-year').value)||new Date().getFullYear();
   var rating=parseFloat(document.getElementById('af-rating').value)||8.0;
   var status=document.getElementById('af-status').value;
+  var animeType=document.getElementById('af-type').value||'مسلسل';
   var color=document.getElementById('af-color').value;
   var img=document.getElementById('af-emoji').value||'⚔️';
   var studio=document.getElementById('af-studio').value.trim();
@@ -1639,7 +2195,8 @@ function saveAnime(){
   if(imgSrcMode==='url')cover=document.getElementById('af-img-url').value.trim();
   else if(imgFileData)cover=imgFileData;
   var arr=getAnimes();
-  var data={title:title,genre:genre,desc:desc,episodes:eps,year:year,rating:rating,status:status,color:color,img:img,cover:cover,studio:studio,duration:duration,startDate:startDate,endDate:endDate,titleEn:titleEn,source:source};
+  var origin=document.getElementById('af-origin')?document.getElementById('af-origin').value:'كوري';
+  var data={title:title,genre:genre,desc:desc,episodes:eps,year:year,rating:rating,status:status,animeType:animeType,origin:origin,color:color,img:img,cover:cover,studio:studio,duration:duration,startDate:startDate,endDate:endDate,titleEn:titleEn,source:source};
   if(editingAnimeId){
     var idx=arr.findIndex(function(a){return a.id===editingAnimeId;});
     if(idx>-1)arr[idx]=Object.assign({},arr[idx],data);
@@ -1664,7 +2221,7 @@ function editAnime(id){
   editingAnimeId=id;
   document.getElementById('af-title').value=a.title||'';document.getElementById('af-genre').value=a.genre||'';document.getElementById('af-desc').value=a.desc||'';
   document.getElementById('af-eps').value=a.episodes||'';document.getElementById('af-year').value=a.year||'';document.getElementById('af-rating').value=a.rating||'';
-  document.getElementById('af-status').value=a.status||'جاري';document.getElementById('af-color').value=a.color||'#6C63FF';document.getElementById('af-emoji').value=a.img||'⚔️';
+  document.getElementById('af-status').value=a.status||'جاري';if(document.getElementById('af-type'))document.getElementById('af-type').value=a.animeType||'مسلسل';if(document.getElementById('af-origin'))document.getElementById('af-origin').value=a.origin||'كوري';document.getElementById('af-color').value=a.color||'#6C63FF';document.getElementById('af-emoji').value=a.img||'⚔️';
   document.getElementById('af-studio').value=a.studio||'';document.getElementById('af-duration').value=a.duration||'';
   document.getElementById('af-startdate').value=a.startDate||'';document.getElementById('af-enddate').value=a.endDate||'';
   document.getElementById('af-titleen').value=a.titleEn||'';document.getElementById('af-source').value=a.source||'';
@@ -1696,22 +2253,37 @@ function renderAdmAnimeList(){
 // EPISODES ADMIN
 function populateEpSel(){
   animes=getAnimes();
+  var kdArr=getKdrama();
   var sel=document.getElementById('ep-anime-sel'),prev=sel.value;
   sel.innerHTML='<option value="">اختر أنيمي...</option>';
-  animes.forEach(function(a){sel.innerHTML+='<option value="'+a.id+'">'+a.img+' '+escHtml(a.title)+'</option>';});
+  if(animes.length){sel.innerHTML+='<optgroup label="🎌 أنيمي">';animes.forEach(function(a){sel.innerHTML+='<option value="'+a.id+'">'+a.img+' '+escHtml(a.title)+'</option>';});sel.innerHTML+='</optgroup>';}
+  if(kdArr.length){sel.innerHTML+='<optgroup label="🇰🇷 مسلسلات كورية">';kdArr.forEach(function(a){sel.innerHTML+='<option value="'+a.id+'">'+a.img+' '+escHtml(a.title)+'</option>';});sel.innerHTML+='</optgroup>';}
   if(prev)sel.value=prev;renderEpList();
 }
 function switchEpSrc(mode){epSrcMode=mode;document.getElementById('ep-src-url').classList.toggle('active',mode==='url');document.getElementById('ep-src-file').classList.toggle('active',mode==='file');document.getElementById('ep-url-panel').style.display=mode==='url'?'block':'none';document.getElementById('ep-file-panel').style.display=mode==='file'?'block':'none';}
 function onEpFile(event){
   var file=event.target?event.target.files[0]:event;if(!file)return;
-  if(file.size>900*1024*1024){showMsg('ep-msg','❌ الحجم أكبر من 900MB','err',0);return;}
+  // Use createObjectURL - works for ANY file size instantly
+  if(window._epObjectURL){try{URL.revokeObjectURL(window._epObjectURL);}catch(e){}}
+  window._epObjectURL=URL.createObjectURL(file);
+  epFileData=window._epObjectURL;
+  window._epFileName=file.name;
+  window._epFileSize=file.size;
+  // Show progress instantly
   var pw=document.getElementById('ep-prog');pw.style.display='block';
   var pb=document.getElementById('ep-prog-bar'),pt=document.getElementById('ep-prog-txt');
-  var reader=new FileReader();
-  reader.onprogress=function(e){if(e.lengthComputable){var p=Math.round(e.loaded/e.total*100);pb.style.width=p+'%';pt.textContent='جاري القراءة '+p+'%';}};
-  reader.onload=function(e){epFileData=e.target.result;pb.style.width='100%';pt.textContent='تم تحميل الملف';var drop=document.getElementById('ep-drop');drop.classList.add('done');document.getElementById('ep-drop-ico').textContent='✅';document.getElementById('ep-drop-txt').textContent=file.name;document.getElementById('ep-drop-sub').textContent=(file.size/1024/1024).toFixed(1)+' MB';setTimeout(function(){pw.style.display='none';},2000);};
-  reader.onerror=function(){showMsg('ep-msg','❌ خطأ في قراءة الملف','err',0);};
-  reader.readAsDataURL(file);
+  pb.style.width='100%';pt.textContent='✅ جاهز للرفع';
+  var drop=document.getElementById('ep-drop');drop.classList.add('done');
+  document.getElementById('ep-drop-ico').textContent='✅';
+  document.getElementById('ep-drop-txt').textContent=file.name;
+  var sizeMB=(file.size/1024/1024).toFixed(1);
+  var sizeDisplay=file.size>1024*1024*1024?(file.size/1024/1024/1024).toFixed(2)+' GB':sizeMB+' MB';
+  document.getElementById('ep-drop-sub').textContent=sizeDisplay+' ✅';
+  document.getElementById('ep-drop-sub').style.color='#26de81';
+  // Update the choose button to show success
+  var chooseBtn=document.getElementById('ep-choose-btn');
+  if(chooseBtn){chooseBtn.textContent='✅ '+file.name;chooseBtn.style.background='rgba(38,222,129,.12)';chooseBtn.style.borderColor='rgba(38,222,129,.4)';chooseBtn.style.color='#26de81';}
+  setTimeout(function(){pw.style.display='none';},1200);
 }
 function uploadEp(){
   var animeId=parseInt(document.getElementById('ep-anime-sel').value);
@@ -1723,14 +2295,30 @@ function uploadEp(){
   if(!title){showMsg('ep-msg','❌ أدخل عنوان الحلقة','err',0);return;}
   var videoSrc='',srcType='';
   if(epSrcMode==='url'){videoSrc=document.getElementById('ep-url').value.trim();if(!videoSrc){showMsg('ep-msg','❌ أدخل رابط الفيديو','err',0);return;}srcType=(videoSrc.indexOf('youtube.com')!==-1||videoSrc.indexOf('youtu.be')!==-1)?'youtube':'url';}
-  else{if(!epFileData){showMsg('ep-msg','❌ اختر ملف فيديو','err',0);return;}videoSrc=epFileData;srcType='file';}
+  else{
+    // Check file input directly as fallback
+    if(!epFileData){
+      var fi=document.getElementById('ep-file-input');
+      if(fi&&fi.files&&fi.files[0]){onEpFile({target:fi});setTimeout(function(){uploadEp();},200);return;}
+      showMsg('ep-msg','❌ اختر ملف فيديو أولاً','err',0);return;
+    }
+    videoSrc=epFileData;
+    srcType='file';
+  }
   var eps=getEps();
   if(eps.find(function(e){return e.animeId===animeId&&e.epNum===epNum;})){showMsg('ep-msg','⚠️ الحلقة موجودة — احذفها أولاً','warn',0);return;}
-  eps.push({id:Date.now(),animeId:animeId,epNum:epNum,title:title,desc:desc,videoSrc:videoSrc,srcType:srcType,uploadedAt:new Date().toLocaleDateString('ar-SA')});
+  var epId=Date.now();
+  // For blob/file URLs: store in memory map, not localStorage
+  if(srcType==='file'&&videoSrc.startsWith('blob:')){
+    if(!window._epBlobMap)window._epBlobMap={};
+    window._epBlobMap[epId]=videoSrc;
+    videoSrc='blob_ref:'+epId; // placeholder in storage
+  }
+  eps.push({id:epId,animeId:animeId,epNum:epNum,title:title,desc:desc,videoSrc:videoSrc,srcType:srcType,uploadedAt:new Date().toLocaleDateString('ar-SA')});
   eps.sort(function(a,b){return a.animeId-b.animeId||a.epNum-b.epNum;});
   saveEps(eps);
   document.getElementById('ep-num').value='';document.getElementById('ep-title').value='';document.getElementById('ep-url').value='';document.getElementById('ep-desc').value='';epFileData=null;
-  document.getElementById('ep-drop').classList.remove('done');document.getElementById('ep-drop-ico').textContent='🎬';document.getElementById('ep-drop-txt').textContent='اسحب ملف الفيديو أو اضغط';document.getElementById('ep-drop-sub').textContent='MP4 · MKV · AVI · WebM';document.getElementById('ep-file-input').value='';
+  document.getElementById('ep-drop').classList.remove('done');document.getElementById('ep-drop-ico').textContent='🎬';document.getElementById('ep-drop-txt').textContent='اسحب ملف الفيديو أو اضغط للاختيار';document.getElementById('ep-drop-sub').textContent='MP4 · MKV · AVI · WebM';document.getElementById('ep-drop-sub').style.color='';document.getElementById('ep-file-input').value='';var cb=document.getElementById('ep-choose-btn');if(cb){cb.textContent='❌ اختر ملف فيديو';cb.style.background='rgba(252,92,101,.12)';cb.style.borderColor='rgba(252,92,101,.3)';cb.style.color='#FC5C65';}
   showMsg('ep-msg','✅ تم رفع الحلقة بنجاح!','ok');renderEpList();
 }
 function renderEpList(){
@@ -1750,8 +2338,153 @@ function renderEpList(){
 function delEp(id){if(!confirm('حذف هذه الحلقة؟'))return;saveEps(getEps().filter(function(e){return e.id!==id;}));renderEpList();}
 function delAllEps(){if(!confirm('حذف جميع الحلقات؟'))return;saveEps([]);renderEpList();}
 
+// KDRAMA ADMIN
+var kdImgSrcMode='url', kdImgFileData=null, editingKdramaId=null, selectedKdEmoji_='🇰🇷';
+
+function getKdrama(){return JSON.parse(localStorage.getItem('ka_kdrama')||'[]');}
+function saveKdrama_data(arr){localStorage.setItem('ka_kdrama',JSON.stringify(arr));}
+
+function selKdEmoji(el,emoji){
+  document.querySelectorAll('.kd-emoji-opt').forEach(function(e){e.classList.remove('kd-sel');});
+  el.classList.add('kd-sel');
+  selectedKdEmoji_=emoji;
+  document.getElementById('kd-emoji').value=emoji;
+}
+function switchKdImgSrc(mode){
+  kdImgSrcMode=mode;
+  document.getElementById('kd-img-src-url').classList.toggle('active',mode==='url');
+  document.getElementById('kd-img-src-file').classList.toggle('active',mode==='file');
+  document.getElementById('kd-img-url-panel').style.display=mode==='url'?'block':'none';
+  document.getElementById('kd-img-file-panel').style.display=mode==='file'?'block':'none';
+}
+function onKdImgFile(event){
+  var file=event.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    kdImgFileData=e.target.result;
+    var prev=document.getElementById('kd-img-preview');
+    var prevWrap=document.getElementById('kd-img-preview-wrap');
+    if(prev){prev.src=e.target.result;prevWrap.style.display='block';}
+    document.getElementById('kd-img-drop-ico').style.display='none';
+    document.getElementById('kd-img-drop-txt').textContent=file.name;
+    document.getElementById('kd-img-drop-sub').textContent=(file.size/1024).toFixed(0)+' KB ✅';
+    document.getElementById('kd-img-drop-sub').style.color='#26de81';
+  };
+  reader.readAsDataURL(file);
+}
+function saveKdrama(){
+  var title=document.getElementById('kd-title').value.trim();
+  var genre=document.getElementById('kd-genre').value.trim();
+  var desc=document.getElementById('kd-desc').value.trim();
+  if(!title||!genre||!desc){showMsg('kd-msg','❌ يرجى ملء الحقول المطلوبة','err',0);return;}
+  var eps=parseInt(document.getElementById('kd-eps').value)||0;
+  var year=parseInt(document.getElementById('kd-year').value)||new Date().getFullYear();
+  var rating=parseFloat(document.getElementById('kd-rating').value)||8.0;
+  var status=document.getElementById('kd-status').value;
+  var kdType=document.getElementById('kd-type').value;
+  var studio=document.getElementById('kd-studio').value.trim();
+  var duration=parseInt(document.getElementById('kd-duration').value)||60;
+  var startDate=document.getElementById('kd-startdate').value;
+  var endDate=document.getElementById('kd-enddate').value;
+  var img=document.getElementById('kd-emoji').value||'🇰🇷';
+  var cover='';
+  if(kdImgSrcMode==='url')cover=document.getElementById('kd-img-url').value.trim();
+  else if(kdImgFileData)cover=kdImgFileData;
+  var arr=getKdrama();
+  var data={title:title,genre:genre,desc:desc,episodes:eps,year:year,rating:rating,status:status,animeType:kdType,origin:'كوري',color:'#FF6584',img:img,cover:cover,studio:studio,duration:duration,startDate:startDate,endDate:endDate,titleEn:'',source:''};
+  if(editingKdramaId){
+    var idx=arr.findIndex(function(a){return a.id===editingKdramaId;});
+    if(idx!==-1){data.id=editingKdramaId;arr[idx]=data;}
+    editingKdramaId=null;
+    document.getElementById('kd-save-btn').style.background='linear-gradient(135deg,#FF6584,#FC5C65)';
+    document.getElementById('kd-save-btn').textContent='💾 حفظ المسلسل';
+    document.getElementById('kd-cancel-btn').style.display='none';
+    document.getElementById('kdrama-form-title').textContent='➕ إضافة مسلسل كوري';
+  } else {
+    data.id=arr.length?Math.max.apply(null,arr.map(function(a){return a.id;}))+1:1001;
+    arr.push(data);
+  }
+  saveKdrama_data(arr);
+  resetKdForm();
+  showMsg('kd-msg','✅ تم حفظ المسلسل بنجاح!','ok');
+  renderAdmKdramaList();
+  renderKdramaPage();
+}
+function resetKdForm(){
+  ['kd-title','kd-genre','kd-desc','kd-eps','kd-year','kd-rating','kd-studio','kd-duration','kd-img-url'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('kd-startdate').value='';
+  document.getElementById('kd-enddate').value='';
+  document.getElementById('kd-status').value='جاري';
+  document.getElementById('kd-type').value='مسلسل';
+  kdImgFileData=null;
+  document.getElementById('kd-img-drop-ico').style.display='';
+  document.getElementById('kd-img-drop-txt').textContent='اضغط لاختيار صورة الغلاف';
+  document.getElementById('kd-img-drop-sub').textContent='JPG · PNG · WebP';
+  document.getElementById('kd-img-preview-wrap').style.display='none';
+  document.getElementById('kd-img-file').value='';
+  document.querySelectorAll('.kd-emoji-opt').forEach(function(e){e.classList.remove('kd-sel');});
+  var first=document.querySelector('.kd-emoji-opt');if(first){first.classList.add('kd-sel');selectedKdEmoji_='🇰🇷';document.getElementById('kd-emoji').value='🇰🇷';}
+  switchKdImgSrc('url');
+}
+function editKdrama(id){
+  var arr=getKdrama();
+  var a=arr.find(function(x){return x.id===id;});
+  if(!a)return;
+  editingKdramaId=id;
+  document.getElementById('kd-title').value=a.title||'';
+  document.getElementById('kd-genre').value=a.genre||'';
+  document.getElementById('kd-desc').value=a.desc||'';
+  document.getElementById('kd-eps').value=a.episodes||'';
+  document.getElementById('kd-year').value=a.year||'';
+  document.getElementById('kd-rating').value=a.rating||'';
+  document.getElementById('kd-status').value=a.status||'جاري';
+  document.getElementById('kd-type').value=a.animeType||'مسلسل';
+  document.getElementById('kd-studio').value=a.studio||'';
+  document.getElementById('kd-duration').value=a.duration||'';
+  document.getElementById('kd-startdate').value=a.startDate||'';
+  document.getElementById('kd-enddate').value=a.endDate||'';
+  document.getElementById('kd-emoji').value=a.img||'🇰🇷';
+  document.querySelectorAll('.kd-emoji-opt').forEach(function(e){e.classList.remove('kd-sel');if(e.textContent===a.img)e.classList.add('kd-sel');});
+  if(a.cover&&a.cover.startsWith('http')){document.getElementById('kd-img-url').value=a.cover;switchKdImgSrc('url');}
+  document.getElementById('kdrama-form-title').textContent='✏️ تعديل: '+a.title;
+  document.getElementById('kd-save-btn').textContent='💾 حفظ التعديلات';
+  document.getElementById('kd-save-btn').style.background='linear-gradient(135deg,#6C63FF,#8B5CF6)';
+  document.getElementById('kd-cancel-btn').style.display='inline-block';
+  document.getElementById('adm-pane-kdrama').scrollIntoView({behavior:'smooth'});
+}
+function cancelEditKdrama(){
+  editingKdramaId=null;
+  resetKdForm();
+  document.getElementById('kdrama-form-title').textContent='➕ إضافة مسلسل كوري';
+  document.getElementById('kd-save-btn').style.background='linear-gradient(135deg,#FF6584,#FC5C65)';
+  document.getElementById('kd-save-btn').textContent='💾 حفظ المسلسل';
+  document.getElementById('kd-cancel-btn').style.display='none';
+}
+function deleteKdrama(id){
+  if(!confirm('حذف هذا المسلسل وكل حلقاته؟'))return;
+  saveKdrama_data(getKdrama().filter(function(a){return a.id!==id;}));
+  saveEps(getEps().filter(function(e){return e.animeId!==id;}));
+  renderAdmKdramaList();
+  renderKdramaPage();
+}
+function renderAdmKdramaList(){
+  var arr=getKdrama();
+  document.getElementById('kdrama-list-count').textContent=arr.length;
+  var c=document.getElementById('adm-kdrama-list');
+  if(!arr.length){c.innerHTML='<div style="text-align:center;padding:18px;color:rgba(255,255,255,.3);font-size:12px;">لا توجد مسلسلات كورية بعد</div>';return;}
+  c.innerHTML=arr.map(function(a){
+    var ec=getEps().filter(function(e){return e.animeId===a.id;}).length;
+    return '<div class="adm-anime-item">'
+      +'<div class="adm-anime-ico" style="background:linear-gradient(135deg,#FF658444,#FF658422)">'+a.img+'</div>'
+      +'<div class="adm-anime-info"><div class="adm-anime-name">'+escHtml(a.title)+'</div>'
+      +'<div class="adm-anime-meta">'+(a.animeType||'مسلسل')+' · '+a.status+' · '+ec+' حلقة · '+a.year+'</div></div>'
+      +'<div class="adm-anime-actions"><button class="adm-btn-sm" onclick="editKdrama('+a.id+')">✏️</button><button class="adm-ep-del" onclick="deleteKdrama('+a.id+')">🗑️</button></div>'
+      +'</div>';
+  }).join('');
+}
+
 // CONTENT RATING ADMIN
-function populateCrSel(){var sel=document.getElementById('cr-anime-sel');sel.innerHTML='<option value="">اختر أنيمي...</option>';getAnimes().forEach(function(a){sel.innerHTML+='<option value="'+a.id+'">'+a.img+' '+escHtml(a.title)+'</option>';});}
+function populateCrSel(){var sel=document.getElementById('cr-anime-sel');sel.innerHTML='<option value="">اختر أنيمي...</option>';var alist=getAnimes(),klist=getKdrama();if(alist.length){sel.innerHTML+='<optgroup label="🎌 أنيمي">';alist.forEach(function(a){sel.innerHTML+='<option value="'+a.id+'">'+a.img+' '+escHtml(a.title)+'</option>';});sel.innerHTML+='</optgroup>';}if(klist.length){sel.innerHTML+='<optgroup label="🇰🇷 مسلسلات كورية">';klist.forEach(function(a){sel.innerHTML+='<option value="'+a.id+'">'+a.img+' '+escHtml(a.title)+'</option>';});sel.innerHTML+='</optgroup>';}}
 function loadCrForm(){var id=parseInt(document.getElementById('cr-anime-sel').value);var form=document.getElementById('cr-form');if(!id){form.style.display='none';return;}form.style.display='block';var cr=getCrForAnime(id)||{};['violence','language','mature','horror','drugs'].forEach(function(k){var el=document.getElementById('cr-'+k);if(el)el.value=cr[k]||'none';});var age=document.getElementById('cr-age');if(age)age.value=cr.age||'all';}
 function saveCrRating(){var id=parseInt(document.getElementById('cr-anime-sel').value);if(!id){showMsg('cr-msg','❌ اختر الأنيمي','err',0);return;}var cr={};['violence','language','mature','horror','drugs'].forEach(function(k){cr[k]=document.getElementById('cr-'+k).value;});cr.age=document.getElementById('cr-age').value;var all=getAllCr();all[id]=cr;saveCr(all);showMsg('cr-msg','✅ تم حفظ التصنيف','ok');}
 
