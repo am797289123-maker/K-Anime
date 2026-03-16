@@ -848,19 +848,17 @@ body.fs-body{overflow:hidden!important;}
             <div style="font-size:11px;font-weight:800;margin-bottom:11px;color:rgba(255,255,255,.5);">📤 رفع حلقة جديدة</div>
             <div class="adm-row2 adm-field"><div><label class="adm-label">رقم الحلقة *</label><input class="adm-input" id="ep-num" type="number" min="1" placeholder="1" dir="ltr"></div><div><label class="adm-label">عنوان الحلقة *</label><input class="adm-input" id="ep-title" type="text" placeholder="عنوان الحلقة..."></div></div>
             <div class="adm-field"><label class="adm-label">مصدر الفيديو *</label>
-              <div class="src-tabs"><div class="src-tab active" id="ep-src-url" onclick="switchEpSrc('url')">🔗 رابط YouTube/MP4</div><div class="src-tab" id="ep-src-file" onclick="switchEpSrc('file')">📁 من جهازي</div></div>
-              <div id="ep-url-panel"><input class="adm-input" id="ep-url" type="text" placeholder="https://youtube.com/..." dir="ltr"></div>
-              <div id="ep-file-panel" style="display:none;">
-                <div class="file-drop" id="ep-drop" onclick="document.getElementById('ep-file-input').click()">
-                  <input type="file" id="ep-file-input" accept="video/*" style="display:none;" onchange="onEpFile(event)">
-                  <div class="file-drop-ico" id="ep-drop-ico">🎬</div>
-                  <div class="file-drop-txt" id="ep-drop-txt">اسحب ملف الفيديو أو اضغط للاختيار</div>
-                  <div class="file-drop-sub" id="ep-drop-sub">MP4 · MKV · AVI · WebM</div>
+              <div style="margin-bottom:8px;">
+                <input class="adm-input" id="ep-url" type="text" placeholder="https://youtube.com/watch?v=... أو رابط MP4 مباشر" dir="ltr">
+              </div>
+              <div style="background:rgba(108,99,255,.07);border:1px solid rgba(108,99,255,.2);border-radius:10px;padding:11px 13px;margin-bottom:4px;">
+                <div style="font-size:11px;font-weight:800;color:#9D97FF;margin-bottom:6px;">💡 مواقع رفع مجانية للحصول على رابط مباشر</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                  <a href="https://www.google.com/drive" target="_blank" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 10px;text-decoration:none;color:rgba(255,255,255,.8);font-size:11px;font-weight:700;">🟢 Google Drive</a>
+                  <a href="https://www.mediafire.com" target="_blank" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 10px;text-decoration:none;color:rgba(255,255,255,.8);font-size:11px;font-weight:700;">📦 MediaFire</a>
+                  <a href="https://mega.nz" target="_blank" style="display:flex;align-items:center;gap=6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 10px;text-decoration:none;color:rgba(255,255,255,.8);font-size:11px;font-weight:700;">🔴 MEGA</a>
+                  <a href="https://www.youtube.com/upload" target="_blank" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 10px;text-decoration:none;color:rgba(255,255,255,.8);font-size:11px;font-weight:700;">▶ YouTube</a>
                 </div>
-                <button type="button" onclick="document.getElementById('ep-file-input').click()" style="width:100%;margin-top:8px;padding:11px;background:rgba(252,92,101,.12);border:1px solid rgba(252,92,101,.3);border-radius:10px;color:#FC5C65;font-family:Cairo,sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;" id="ep-choose-btn">
-                  ❌ اختر ملف فيديو
-                </button>
-                <div class="prog-wrap" id="ep-prog"><div class="prog-bg"><div class="prog-bar" id="ep-prog-bar"></div></div><div class="prog-txt" id="ep-prog-txt"></div></div>
               </div>
             </div>
             <div class="adm-field"><label class="adm-label">وصف (اختياري)</label><textarea class="adm-textarea" id="ep-desc" rows="2" placeholder="وصف مختصر..."></textarea></div>
@@ -1243,34 +1241,12 @@ function renderModalEps(animeId){
   list.style.display='flex';empty.style.display='none';
   list.innerHTML=eps.map(function(ep){
     var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف محلي':'🔗 رابط';
-    if(ep.srcType==='file'){
-      return '<div class="ep-row" id="meprow-'+ep.id+'" style="position:relative;">'
-        +'<div class="ep-num">'+ep.epNum+'</div>'
-        +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">📁 اضغط واختر الملف</div></div>'
-        +'<label style="position:absolute;inset:0;cursor:pointer;">'
-        +'<input type="file" accept="video/*" style="display:none;" onchange="openLocalFromModal(event,'+ep.id+')">'
-        +'</label>'
-        +'<div class="ep-play">📂</div></div>';
-    }
-    return '<div class="ep-row" onclick="openWatchFromModal('+ep.id+')">'
+    return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')">'
       +'<div class="ep-num">'+ep.epNum+'</div>'
       +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">'+ti+'</div></div>'
       +'<div class="ep-play">▶</div></div>';
   }).join('');
 }
-function openLocalFromModal(event, epId){
-  var ep = getEps().find(function(e){return e.id===epId;});
-  if(!ep) return;
-  watchAnimeId = ep.animeId;
-  closeModal();
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
-  document.getElementById('page-watch').classList.add('active');
-  var a = animes.find(function(x){return x.id===watchAnimeId;}) || getKdrama().find(function(x){return x.id===watchAnimeId;});
-  if(a){ document.getElementById('watch-top-title').textContent=a.title; }
-  renderWatchPage();
-  setTimeout(function(){ playLocalFile(event, epId); }, 200);
-}
-
 function openWatchFromModal(epId){
   if(!currentAnime)return;
   watchAnimeId=currentAnime.id;
@@ -1534,16 +1510,6 @@ function renderWatchPage(){
   list.style.display='flex';empty.style.display='none';
   list.innerHTML=eps.map(function(ep){
     var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف محلي':'🔗 رابط';
-    if(ep.srcType==='file'){
-      // File episodes: show a label that opens file picker directly
-      return '<div class="ep-row" id="eprow-'+ep.id+'" style="position:relative;">'
-        +'<div class="ep-num">'+ep.epNum+'</div>'
-        +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">📁 اضغط واختر الملف من جهازك</div></div>'
-        +'<label style="position:absolute;inset:0;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;padding-right:14px;">'
-        +'<input type="file" accept="video/*" style="display:none;" onchange="playLocalFile(event,'+ep.id+')">'
-        +'</label>'
-        +'<div class="ep-play" style="z-index:2;">📂</div></div>';
-    }
     return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')">'
       +'<div class="ep-num">'+ep.epNum+'</div>'
       +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">'+ti+'</div></div>'
@@ -2192,93 +2158,919 @@ async function translateSubtitle(text,lang){
 
 
 // ===== PLAY EPISODE =====
-function playLocalFile(event, epId){
-  var file = event.target.files[0];
-  if(!file) return;
-  // Revoke old blob if any
-  if(window._currentBlobURL){ try{URL.revokeObjectURL(window._currentBlobURL);}catch(e){} }
-  window._currentBlobURL = URL.createObjectURL(file);
-  // Get ep data
-  var ep = getEps().find(function(e){ return e.id === epId; });
-  if(!ep) return;
-  // Remove relink UI if shown
-  var old = document.getElementById('relink-ui'); if(old) old.remove();
-  // Play directly
-  var vid = document.getElementById('player-video');
-  var ifr = document.getElementById('player-iframe');
-  ifr.src=''; ifr.style.display='none';
-  vid.style.display='block';
-  vid.src = window._currentBlobURL;
-  vid.load();
-  vid.play().then(function(){
-    playerIsPlaying=true;
-    document.getElementById('play-icon').textContent='⏸';
-  }).catch(function(){});
-  // Update UI
-  var anime = animes.find(function(a){return a.id===ep.animeId;}) || getKdrama().find(function(a){return a.id===ep.animeId;});
-  currentEpId = epId;
-  document.querySelectorAll('.ep-row').forEach(function(r){r.classList.remove('playing');});
-  var row = document.getElementById('eprow-'+epId);
-  if(row) row.classList.add('playing');
-  document.getElementById('watch-info').style.display='block';
-  var an=document.getElementById('watch-anime-name'); if(an)an.textContent=anime?anime.title:'';
-  var et=document.getElementById('watch-ep-title'); if(et)et.textContent=ep.title;
-  var eb=document.getElementById('watch-ep-badge'); if(eb)eb.textContent='الحلقة '+ep.epNum;
-  var ed=document.getElementById('watch-ep-desc'); if(ed)ed.textContent=ep.desc||'';
-  var tt=document.getElementById('watch-top-title'); if(tt)tt.textContent=anime?anime.title:'';
-  var te=document.getElementById('watch-top-ep'); if(te)te.textContent='الحلقة : '+ep.epNum;
-  setupPlayerEvents(vid);
-  addToHistory(ep.animeId, ep.id, ep.title);
-  autoLoadEpSubtitle(ep);
-  var wrap=document.querySelector('.player-wrap');
-  if(wrap)wrap.scrollIntoView({behavior:'smooth',block:'start'});
-  showOverlay();
+
+function openWatchFromModal(epId){
+  if(!currentAnime)return;
+  watchAnimeId=currentAnime.id;
+  closeModal();
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('page-watch').classList.add('active');
+  var a=animes.find(function(x){return x.id===watchAnimeId;});
+  if(a){document.getElementById('watch-top-title').textContent=a.title;document.getElementById('watch-top-ep').textContent='';}
+  renderWatchPage();
+  setTimeout(function(){playEp(epId);},200);
+}
+function renderModalStats(a){
+  var eps=getEps().filter(function(e){return e.animeId===a.id;});
+  document.getElementById('modal-stat-big').innerHTML=[{val:a.rating,lbl:'⭐ التقييم'},{val:a.episodes||0,lbl:'📺 الحلقات'},{val:eps.length,lbl:'✅ مرفوع'}].map(function(s){return '<div class="modal-stat-card"><div class="modal-stat-card-val">'+s.val+'</div><div class="modal-stat-card-lbl">'+s.lbl+'</div></div>';}).join('');
 }
 
-function showRelinkFileUI(epId, ep){
-  // Show a panel asking user to re-select the video file
+// ===== CONTENT RATING IN MODAL =====
+function renderCrInModal(animeId){
+  var cr=getCrForAnime(animeId);
+  var list=document.getElementById('modal-cr-list-new');
+  var empty=document.getElementById('modal-cr-empty');
+  if(!cr||!list){if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  var keys=['violence','language','mature','horror','drugs'];
+  var html='<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;margin-bottom:12px;">';
+  keys.forEach(function(k){
+    var lv=CR_LEVELS[cr[k]||'none'];var meta=CR_LABELS[k];var barColor=CR_BAR_COLORS[lv.color];
+    html+='<div class="cr-row" style="padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.05);">'
+      +'<div class="cr-dot '+lv.color+'"></div>'
+      +'<div class="cr-label">'+meta.icon+' '+meta.label+'</div>'
+      +'<div class="cr-bar-wrap"><div class="cr-bar" style="width:'+lv.pct+'%;background:'+barColor+';"></div></div>'
+      +'<div class="cr-level">'+lv.label+'</div></div>';
+  });
+  html+='</div>';
+  var ageLbl=CR_AGE_LABELS[cr.age||'all'];
+  var ageColor=cr.age==='18'?'#FC5C65':cr.age==='16'?'#F7B731':cr.age==='13'?'#45AAF2':'#26de81';
+  html+='<div style="display:flex;align-items:center;gap:10px;padding:4px 2px;"><span style="font-size:12px;color:rgba(255,255,255,.4);">الفئة العمرية:</span><span style="background:'+ageColor+'22;border:1px solid '+ageColor+'55;color:'+ageColor+';padding:4px 16px;border-radius:20px;font-size:13px;font-weight:800;">'+ageLbl+'</span></div>';
+  list.innerHTML=html;
+}
+
+// ===== STAR RATINGS =====
+function renderStars(animeId){
+  var myRatings=JSON.parse(localStorage.getItem('ka_myratings')||'{}');
+  var myR=myRatings[animeId]||0;
+  var row=document.getElementById('stars-row');if(!row)return;
+  var html='';
+  for(var n=1;n<=10;n++){
+    html+='<button class="star-btn'+(n<=myR?' on':'')+'" onclick="setRatingQuick('+animeId+','+n+')">★</button>';
+  }
+  row.innerHTML=html;
+  var rv=document.getElementById('my-rating-val');if(rv)rv.textContent=myR?myR+'/10 ★':'لم تقيّم بعد';
+}
+function setRatingQuick(animeId,val){
+  var r=JSON.parse(localStorage.getItem('ka_myratings')||'{}');
+  r[animeId]=val;localStorage.setItem('ka_myratings',JSON.stringify(r));
+  renderStars(animeId);
+  var rn=document.getElementById('modal-rating-num');if(rn)rn.textContent=val+'/10';
+}
+var tempRating=0;
+function openRatingModal(){
+  if(!currentAnime)return;
+  document.getElementById('rating-anime-name').textContent=currentAnime.title;
+  var r=JSON.parse(localStorage.getItem('ka_myratings')||'{}');
+  tempRating=r[currentAnime.id]||0;
+  var container=document.getElementById('rating-stars-big');
+  container.innerHTML='';
+  for(var n=1;n<=10;n++){
+    var span=document.createElement('span');
+    span.textContent='★';span.style.cssText='font-size:28px;cursor:pointer;transition:opacity .15s;';
+    span.style.opacity=n<=tempRating?'1':'0.3';
+    span.setAttribute('data-val',n);
+    (function(val){span.addEventListener('click',function(){setTempRating(val);});})(n);
+    container.appendChild(span);
+  }
+  document.getElementById('rating-selected-val').textContent=tempRating?tempRating+'/10':'اختر';
+  document.getElementById('rating-modal').style.display='flex';
+}
+function setTempRating(v){
+  tempRating=v;
+  document.getElementById('rating-selected-val').textContent=v+'/10';
+  document.getElementById('rating-stars-big').querySelectorAll('span').forEach(function(s,i){s.style.opacity=i<v?'1':'0.3';});
+}
+function saveMyRating(){if(!currentAnime||!tempRating)return;setRatingQuick(currentAnime.id,tempRating);document.getElementById('rating-modal').style.display='none';}
+
+// ===== MY LIST MODAL =====
+function addToMylist(animeId,status){var m=getMylist();m[animeId]=status;saveMylist(m);}
+function openMylistModal(){
+  if(!currentAnime)return;
+  var m=getMylist();var cur=m[currentAnime.id]||'';
+  var opts=[{v:'watching',l:'👁️ أشاهد حالياً'},{v:'plan',l:'📌 سأشاهد لاحقاً'},{v:'done',l:'✅ أكملته'},{v:'drop',l:'🗑️ أسقطته'}];
+  var container=document.getElementById('mylist-options');
+  container.innerHTML='';
+  opts.forEach(function(o){
+    var isCur=cur===o.v;
+    var btn=document.createElement('button');
+    btn.textContent=o.l+(isCur?' ✓':'');
+    btn.style.cssText='width:100%;padding:13px 16px;border-radius:10px;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:right;margin-bottom:4px;';
+    btn.style.background=isCur?'rgba(108,99,255,.2)':'rgba(255,255,255,.05)';
+    btn.style.border='1px solid '+(isCur?'rgba(108,99,255,.4)':'rgba(255,255,255,.1)');
+    btn.style.color=isCur?'#9D97FF':'#fff';
+    (function(v){btn.addEventListener('click',function(){setMylistFromModal(v);});})(o.v);
+    container.appendChild(btn);
+  });
+  document.getElementById('mylist-modal').style.display='flex';
+}
+function setMylistFromModal(status){if(!currentAnime)return;addToMylist(currentAnime.id,status);document.getElementById('mylist-modal').style.display='none';}
+var mylistTab='watching';
+function setMylistTab(tab,btn){mylistTab=tab;document.querySelectorAll('#mylist-tabs .cat-btn').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');renderMylist(tab);}
+function renderMylist(tab){
+  mylistTab=tab;var m=getMylist();var ids=[];
+  Object.keys(m).forEach(function(id){if(m[id]===tab)ids.push(parseInt(id));});
+  var animes2=animes.filter(function(a){return ids.indexOf(a.id)!==-1;});
+  var g=document.getElementById('mylist-grid'),e=document.getElementById('mylist-empty');
+  if(!animes2.length){g.innerHTML='';e.style.display='block';return;}
+  e.style.display='none';g.style.display='grid';
+  g.innerHTML=animes2.map(function(a,i){return makeCard(a,i*0.06);}).join('');
+}
+
+// ===== COMMENTS =====
+var isSpoilerMode=false,commentAnimeId=null;
+function toggleSpoilerMode(){
+  isSpoilerMode=!isSpoilerMode;
+  var knob=document.getElementById('spoiler-knob');
+  var toggle=document.getElementById('spoiler-toggle');
+  var label=document.getElementById('spoiler-label');
+  if(isSpoilerMode){toggle.style.background='#FC5C65';knob.style.right='21px';label.style.color='#FC5C65';label.textContent='🔥 حرق (مفعّل)';}
+  else{toggle.style.background='rgba(255,255,255,.15)';knob.style.right='3px';label.style.color='rgba(255,255,255,.5)';label.textContent='حرق الأحداث';}
+}
+function submitComment(){
+  var text=document.getElementById('comment-input').value.trim();
+  if(!text){showCommentMsg('comment-msg','❌ اكتب تعليقاً أولاً','#FC5C65');return;}
+  if(text.length>500){showCommentMsg('comment-msg','❌ التعليق طويل جداً','#FC5C65');return;}
+  var id=commentAnimeId;var arr=getComments(id);
+  var names=['زائر','متابع','مشاهد','أنيميست','محب الأنيمي'];
+  arr.unshift({id:Date.now(),text:text,spoiler:isSpoilerMode,name:names[Math.floor(Math.random()*names.length)]+' '+(arr.length+1),time:new Date().toLocaleString('ar-SA',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),likes:0});
+  saveComments(id,arr);
+  document.getElementById('comment-input').value='';
+  if(isSpoilerMode)toggleSpoilerMode();
+  showCommentMsg('comment-msg','✅ تم نشر تعليقك','#26de81');
+  renderComments(id);
+}
+function showCommentMsg(elId,msg,color){var el=document.getElementById(elId);el.textContent=msg;el.style.color=color;el.style.display='block';setTimeout(function(){el.style.display='none';},2500);}
+function renderComments(animeId){
+  commentAnimeId=animeId;
+  var arr=getComments(animeId);
+  var list=document.getElementById('comments-list');
+  var empty=document.getElementById('comments-empty');
+  if(!list)return;
+  if(!arr.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  var myLikes=JSON.parse(localStorage.getItem('ka_comment_likes')||'{}');
+  var html='';
+  arr.forEach(function(c){
+    var isLiked=myLikes[c.id]?true:false;
+    var spoilBadge=c.spoiler?'<span class="comment-spoiler-badge">&#128293; حرق</span>':'';
+    var bodyHtml=c.spoiler
+      ?'<div class="comment-spoiler-blur" id="sb-'+c.id+'" onclick="revealSpoiler('+c.id+')">'+escHtml(c.text)+'</div><div class="comment-spoiler-hint" id="sh-'+c.id+'" onclick="revealSpoiler('+c.id+')">&#128070; اضغط لرؤية الحرق</div>'
+      :'<div class="comment-body">'+escHtml(c.text)+'</div>';
+    var likeClass=isLiked?'comment-like-btn liked':'comment-like-btn';
+    var likeIcon=isLiked?'&#10084;&#65039;':'&#129293;';
+    html+='<div class="comment-card" id="ccard-'+c.id+'">'
+      +'<div class="comment-header">'
+      +'<div class="comment-avatar">'+escHtml(c.name.charAt(0))+'</div>'
+      +'<div><div class="comment-name">'+escHtml(c.name)+'</div></div>'
+      +'<div class="comment-time">'+escHtml(c.time)+'</div>'
+      +spoilBadge+'</div>'
+      +bodyHtml
+      +'<div class="comment-actions">'
+      +'<button class="'+likeClass+'" onclick="likeComment('+c.id+')">'+likeIcon+' '+(c.likes||0)+'</button>'
+      +'<button class="comment-del-btn" onclick="deleteComment('+animeId+','+c.id+')">&#128465; حذف</button>'
+      +'</div></div>';
+  });
+  list.innerHTML=html;
+}
+function revealSpoiler(commentId){var el=document.getElementById('sb-'+commentId);var hint=document.getElementById('sh-'+commentId);if(el){el.classList.add('revealed');el.onclick=null;}if(hint)hint.classList.add('hidden');}
+function likeComment(commentId){
+  var myLikes=JSON.parse(localStorage.getItem('ka_comment_likes')||'{}');
+  if(!commentAnimeId)return;
+  var arr=getComments(commentAnimeId);
+  var c=arr.find(function(x){return x.id===commentId;});if(!c)return;
+  if(myLikes[commentId]){c.likes=Math.max(0,(c.likes||0)-1);delete myLikes[commentId];}
+  else{c.likes=(c.likes||0)+1;myLikes[commentId]=true;}
+  localStorage.setItem('ka_comment_likes',JSON.stringify(myLikes));
+  saveComments(commentAnimeId,arr);renderComments(commentAnimeId);
+}
+function deleteComment(animeId,commentId){if(!confirm('حذف هذا التعليق؟'))return;saveComments(animeId,getComments(animeId).filter(function(c){return c.id!==commentId;}));renderComments(animeId);}
+
+// ===== EPISODE COMMENTS =====
+var isEpSpoilerMode=false;
+function toggleEpSpoiler(){
+  isEpSpoilerMode=!isEpSpoilerMode;
+  var knob=document.getElementById('ep-spoiler-knob');
+  var toggle=document.getElementById('ep-spoiler-toggle');
+  var label=document.getElementById('ep-spoiler-label');
+  if(isEpSpoilerMode){toggle.style.background='#FC5C65';knob.style.right='21px';label.style.color='#FC5C65';label.textContent='🔥 حرق (مفعّل)';}
+  else{toggle.style.background='rgba(255,255,255,.15)';knob.style.right='3px';label.style.color='rgba(255,255,255,.5)';label.textContent='حرق الأحداث';}
+}
+function submitEpComment(){
+  if(!currentEpId)return;
+  var text=document.getElementById('ep-comment-input').value.trim();
+  if(!text){showCommentMsg('ep-comment-msg','❌ اكتب تعليقاً أولاً','#FC5C65');return;}
+  var arr=getEpComments(currentEpId);
+  var names=['زائر','متابع','مشاهد','أنيميست','محب الأنيمي'];
+  arr.unshift({id:Date.now(),text:text,spoiler:isEpSpoilerMode,name:names[Math.floor(Math.random()*names.length)]+' '+(arr.length+1),time:new Date().toLocaleString('ar-SA',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}),likes:0});
+  saveEpComments(currentEpId,arr);
+  document.getElementById('ep-comment-input').value='';
+  if(isEpSpoilerMode)toggleEpSpoiler();
+  showCommentMsg('ep-comment-msg','✅ تم نشر تعليقك','#26de81');
+  renderEpComments(currentEpId);
+}
+function renderEpComments(epId){
+  var arr=getEpComments(epId);
+  var list=document.getElementById('ep-comments-list');
+  var empty=document.getElementById('ep-comments-empty');
+  if(!list)return;
+  if(!arr.length){list.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  var html='';
+  arr.forEach(function(c){
+    var spoilBadge=c.spoiler?'<span class="comment-spoiler-badge">&#128293; حرق</span>':'';
+    var bodyHtml=c.spoiler
+      ?'<div class="comment-spoiler-blur" id="esb-'+c.id+'" onclick="revealEpSpoiler('+c.id+')">'+escHtml(c.text)+'</div><div class="comment-spoiler-hint" id="esh-'+c.id+'" onclick="revealEpSpoiler('+c.id+')">&#128070; اضغط لرؤية الحرق</div>'
+      :'<div class="comment-body">'+escHtml(c.text)+'</div>';
+    html+='<div class="comment-card">'
+      +'<div class="comment-header"><div class="comment-avatar">'+escHtml(c.name.charAt(0))+'</div><div><div class="comment-name">'+escHtml(c.name)+'</div></div><div class="comment-time">'+escHtml(c.time)+'</div>'+spoilBadge+'</div>'
+      +bodyHtml
+      +'<div class="comment-actions"><button class="comment-del-btn" onclick="deleteEpComment('+epId+','+c.id+')">&#128465; حذف</button></div>'
+      +'</div>';
+  });
+  list.innerHTML=html;
+}
+function revealEpSpoiler(commentId){var el=document.getElementById('esb-'+commentId);var hint=document.getElementById('esh-'+commentId);if(el){el.classList.add('revealed');el.onclick=null;}if(hint)hint.classList.add('hidden');}
+function deleteEpComment(epId,commentId){if(!confirm('حذف؟'))return;saveEpComments(epId,getEpComments(epId).filter(function(c){return c.id!==commentId;}));renderEpComments(epId);}
+
+// ===== WATCH PAGE =====
+function openWatchPage(){
+  if(!currentAnime)return;
+  watchAnimeId=currentAnime.id;
+  closeModal();
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('page-watch').classList.add('active');
+  var a=animes.find(function(x){return x.id===watchAnimeId;});
+  if(a){document.getElementById('watch-top-title').textContent=a.title;}
+  renderWatchPage();
+}
+function backFromWatch(){
+  watchAnimeId=null;currentEpId=null;
+  stopPlayer();
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('page-home').classList.add('active');
+  document.getElementById('nav-home-btn').classList.add('active');
+  document.getElementById('watch-info').style.display='none';
+}
+function renderWatchPage(){
+  var a=animes.find(function(x){return x.id===watchAnimeId;});if(!a)return;
+  var eps=getEps().filter(function(e){return e.animeId===watchAnimeId;}).sort(function(a,b){return a.epNum-b.epNum;});
+  var list=document.getElementById('watch-eps-list'),empty=document.getElementById('watch-eps-empty');
+  if(!eps.length){list.style.display='none';empty.style.display='block';return;}
+  list.style.display='flex';empty.style.display='none';
+  list.innerHTML=eps.map(function(ep){
+    var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف محلي':'🔗 رابط';
+    return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')">'
+      +'<div class="ep-num">'+ep.epNum+'</div>'
+      +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">'+ti+'</div></div>'
+      +'<div class="ep-play">▶</div></div>';
+  }).join('');
+}
+function watchTab(name,btn){
+  watchTabActive=name;
+  document.querySelectorAll('.watch-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.watch-tab-pane').forEach(function(p){p.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  var pane=document.getElementById('wpane-'+name);if(pane)pane.classList.add('active');
+  if(name==='comments'&&currentEpId)renderEpComments(currentEpId);
+}
+
+// ===== VIDEO PLAYER =====
+var playerIsPlaying=false,playerSpeeds=[0.5,0.75,1,1.25,1.5,2],playerSpeedIdx=2,showBright=false,playerSubtransOn=false;
+function stopPlayer(){
+  var vid=document.getElementById('player-video');
+  vid.pause();vid.src='';vid.style.display='none';
+  var ifr=document.getElementById('player-iframe');ifr.src='';ifr.style.display='none';
+  playerIsPlaying=false;
+  document.getElementById('play-icon').textContent='▶';
+  document.getElementById('subtitle-overlay').style.display='none';
+  document.getElementById('cc-subtitle-bar').style.display='none';
+  stopCCInterval();
+  if(autoSubOn)stopAutoSub();
+  // Reset brightness
+  var bo=document.getElementById('bright-overlay');if(bo)bo.style.opacity='0';
+  var bs=document.getElementById('bright-slider');if(bs)bs.value=100;
+  var bv=document.getElementById('bright-val');if(bv)bv.textContent='100%';
+  var bb=document.getElementById('bright-btn');if(bb)bb.textContent='☀️';
+}
+function initPlayer(src,title,ep){
+  var vid=document.getElementById('player-video');
+  var ifr=document.getElementById('player-iframe');
+  ifr.src='';ifr.style.display='none';
+  vid.style.display='block';
+  vid.src=src;
+  vid.load();
+  vid.play().then(function(){playerIsPlaying=true;document.getElementById('play-icon').textContent='⏸';}).catch(function(){});
+  document.getElementById('player-title').textContent=title;
+  document.getElementById('player-ep-badge').textContent=ep;
+  setupPlayerEvents(vid);
+}
+function initYoutube(yid,title,ep){
+  var vid=document.getElementById('player-video');vid.pause();vid.src='';vid.style.display='none';
+  var ifr=document.getElementById('player-iframe');
+  ifr.src='https://www.youtube.com/embed/'+yid+'?autoplay=1&controls=0';
+  ifr.style.display='block';
+  document.getElementById('player-title').textContent=title;
+  document.getElementById('player-ep-badge').textContent=ep;
+}
+function setupPlayerEvents(vid){
+  vid.ontimeupdate=function(){updateProgress(vid);};
+  vid.onplay=function(){playerIsPlaying=true;document.getElementById('play-icon').textContent='⏸';};
+  vid.onpause=function(){playerIsPlaying=false;document.getElementById('play-icon').textContent='▶';};
+  vid.ondurationchange=function(){var dur=document.getElementById('player-duration');if(dur)dur.textContent=fmtTime(vid.duration||0);};
+}
+function updateProgress(vid){
+  if(!vid.duration)return;
+  var pct=(vid.currentTime/vid.duration)*100;
+  var fill=document.getElementById('progress-fill');var thumb=document.getElementById('progress-thumb');
+  if(fill)fill.style.width=pct+'%';if(thumb)thumb.style.left=pct+'%';
+  var cur=document.getElementById('player-current');if(cur)cur.textContent=fmtTime(vid.currentTime);
+}
+function toggleFullscreen(){
+  var wrap = document.getElementById('player-wrap');
+  var btn = document.getElementById('fs-btn');
+  var isFs = document.fullscreenElement || document.webkitFullscreenElement;
+  if(!isFs){
+    // Request fullscreen on the wrap element
+    var req = wrap.requestFullscreen || wrap.webkitRequestFullscreen || wrap.mozRequestFullScreen;
+    if(req){
+      req.call(wrap).then(function(){
+        // Lock to landscape on mobile (YouTube-style)
+        if(screen.orientation && screen.orientation.lock){
+          screen.orientation.lock('landscape').catch(function(){});
+        }
+      }).catch(function(){
+        // Fallback: try landscape lock anyway
+        if(screen.orientation && screen.orientation.lock){
+          screen.orientation.lock('landscape').catch(function(){});
+        }
+      });
+    } else {
+      // iOS Safari fallback - lock orientation
+      if(screen.orientation && screen.orientation.lock){
+        screen.orientation.lock('landscape').catch(function(){});
+      }
+    }
+    if(btn){btn.textContent='⛶';btn.style.background='rgba(108,99,255,.35)';}
+  } else {
+    var ex = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
+    if(ex) ex.call(document);
+    // Unlock orientation when exiting
+    if(screen.orientation && screen.orientation.unlock){
+      screen.orientation.unlock();
+    }
+    if(btn){btn.textContent='⛶';btn.style.background='';}
+  }
+}
+function onFsChange(isFs){
   var wrap = document.getElementById('player-wrap');
   var vid = document.getElementById('player-video');
-  vid.style.display = 'none';
-  // Remove existing relink UI if any
-  var old = document.getElementById('relink-ui');
-  if(old) old.remove();
-  var div = document.createElement('div');
-  div.id = 'relink-ui';
-  div.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(0,0,0,.92);z-index:20;';
-  div.innerHTML = '<div style="font-size:36px;">📁</div>'
-    + '<div style="font-size:15px;font-weight:800;color:#fff;text-align:center;">اختر ملف الفيديو مجدداً</div>'
-    + '<div style="font-size:12px;color:rgba(255,255,255,.45);text-align:center;max-width:260px;line-height:1.7;">روابط الملفات المحلية تنتهي عند إعادة فتح الصفحة — اختر الملف مرة أخرى</div>'
-    + '<label style="background:linear-gradient(135deg,#6C63FF,#8B5CF6);border:none;border-radius:12px;color:#fff;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;padding:12px 28px;cursor:pointer;display:inline-block;">'
-    + '📂 اختر الملف'
-    + '<input type="file" accept="video/*" style="display:none;" onchange="relinkEpFile(event,'+epId+')">'
-    + '</label>';
-  wrap.appendChild(div);
+  var btn = document.getElementById('fs-btn');
+  if(isFs){
+    // Full YouTube-style fullscreen
+    if(wrap){
+      wrap.style.borderRadius='0';
+      wrap.style.aspectRatio='unset';
+      wrap.style.width='100%';
+      wrap.style.height='100%';
+      wrap.style.position='fixed';
+      wrap.style.inset='0';
+      wrap.style.zIndex='9999';
+      wrap.style.background='#000';
+    }
+    if(vid){
+      vid.style.width='100%';
+      vid.style.height='100%';
+      vid.style.objectFit='contain';
+    }
+    if(btn){btn.style.background='rgba(108,99,255,.35)';btn.textContent='⛶';}
+    document.body.style.overflow='hidden';
+    document.body.classList.add('fs-body');
+    wrap.classList.add('fs-active');
+    // Show overlay briefly
+    showOverlay();
+  } else {
+    if(wrap){
+      wrap.style.borderRadius='14px';
+      wrap.style.aspectRatio='16/9';
+      wrap.style.width='';
+      wrap.style.height='';
+      wrap.style.position='';
+      wrap.style.inset='';
+      wrap.style.zIndex='';
+      wrap.style.background='';
+    }
+    if(vid){
+      vid.style.width='';
+      vid.style.height='';
+      vid.style.objectFit='';
+    }
+    if(btn){btn.style.background='';btn.textContent='⛶';}
+    document.body.style.overflow='';
+    document.body.classList.remove('fs-body');
+    if(wrap)wrap.classList.remove('fs-active');
+    // Unlock orientation
+    if(screen.orientation && screen.orientation.unlock){
+      try{screen.orientation.unlock();}catch(e){}
+    }
+  }
+}
+document.addEventListener('fullscreenchange', function(){
+  onFsChange(!!document.fullscreenElement);
+});
+document.addEventListener('webkitfullscreenchange', function(){
+  onFsChange(!!document.webkitFullscreenElement);
+});
+document.addEventListener('mozfullscreenchange', function(){
+  onFsChange(!!document.mozFullScreenElement);
+});
+function togglePlay(){
+  var vid=document.getElementById('player-video');
+  if(vid.src && vid.src !== window.location.href){
+    if(vid.paused){
+      vid.play().then(function(){
+        playerIsPlaying=true;
+        document.getElementById('play-icon').textContent='⏸';
+      }).catch(function(e){console.log('play error:',e);});
+    } else {
+      vid.pause();
+      playerIsPlaying=false;
+      document.getElementById('play-icon').textContent='▶';
+    }
+  }
   showOverlay();
 }
-
-function relinkEpFile(event, epId){
-  var file = event.target.files[0];
-  if(!file) return;
-  // Remove relink UI
-  var old = document.getElementById('relink-ui');
-  if(old) old.remove();
-  // Create new blob URL
-  if(window._epObjectURL) try{URL.revokeObjectURL(window._epObjectURL);}catch(e){}
-  var blobUrl = URL.createObjectURL(file);
-  window._epObjectURL = blobUrl;
-  // Update memory map
-  if(!window._epBlobMap) window._epBlobMap = {};
-  // Find the stored blob_ref id
-  var eps = getEps();
-  var ep = eps.find(function(e){ return e.id === epId; });
-  if(ep && ep.videoSrc && ep.videoSrc.startsWith('blob_ref:')){
-    var blobId = parseInt(ep.videoSrc.replace('blob_ref:',''));
-    window._epBlobMap[blobId] = blobUrl;
-  }
-  // Now play
-  playEp(epId);
+function skipTime(sec){
+  var vid=document.getElementById('player-video');
+  if(vid.src){vid.currentTime=Math.max(0,Math.min(vid.duration||0,vid.currentTime+sec));}
+  showOverlay();
 }
+function seekVideo(e){
+  var vid=document.getElementById('player-video');if(!vid.src||!vid.duration)return;
+  var bar=document.getElementById('player-progress');var rect=bar.getBoundingClientRect();var pct=(e.clientX-rect.left)/rect.width;
+  vid.currentTime=pct*vid.duration;
+}
+function cycleSpeed(){
+  playerSpeedIdx=(playerSpeedIdx+1)%playerSpeeds.length;
+  var vid=document.getElementById('player-video');if(vid.src)vid.playbackRate=playerSpeeds[playerSpeedIdx];
+  document.getElementById('speed-label').textContent=playerSpeeds[playerSpeedIdx]+'x';showOverlay();
+}
+function setBrightness(val){
+  var pct = parseInt(val);
+  // Apply to dedicated brightness overlay (works for video + iframe + fullscreen)
+  var overlay = document.getElementById('bright-overlay');
+  if(!overlay) return;
+  if(pct === 100){
+    overlay.style.opacity = '0';
+  } else if(pct > 100){
+    // Brighter: white overlay with low opacity
+    overlay.style.background = 'rgba(255,255,255,'+ ((pct-100)/100*0.6) +')';
+    overlay.style.opacity = '1';
+  } else {
+    // Darker: black overlay with increasing opacity
+    overlay.style.background = 'rgba(0,0,0,'+ ((100-pct)/100*0.85) +')';
+    overlay.style.opacity = '1';
+  }
+  // Update icon
+  var btn = document.getElementById('bright-btn');
+  if(btn) btn.textContent = pct < 60 ? '🌑' : pct > 140 ? '🌟' : '☀️';
+  document.getElementById('bright-val').textContent = pct + '%';
+}
+function toggleBrightSlider(){
+  showBright=!showBright;
+  var wrap=document.getElementById('bright-slider-wrap');
+  if(showBright){wrap.classList.add('visible');document.getElementById('bright-btn').classList.add('active');}
+  else{wrap.classList.remove('visible');document.getElementById('bright-btn').classList.remove('active');}
+}
+function showOverlay(){
+  var ov=document.getElementById('player-overlay');
+  ov.classList.add('visible');
+  clearTimeout(window._overlayTimer);
+  window._overlayTimer=setTimeout(function(){
+    ov.classList.remove('visible');
+  },3000);
+}
+function hideOverlay(){
+  clearTimeout(window._overlayTimer);
+  document.getElementById('player-overlay').classList.remove('visible');
+}
+// Tap/click on player wrap toggles overlay
+document.addEventListener('click',function(e){
+  var pw=document.getElementById('player-wrap');
+  if(!pw||!pw.contains(e.target))return;
+  var isCtrl=e.target.closest('.player-ctrl-btn,.player-bottom-btn,.player-progress,#bright-slider-wrap');
+  if(isCtrl){
+    // Control clicked - just show overlay
+    showOverlay();
+    return;
+  }
+  // Tap on video area - toggle overlay
+  var ov=document.getElementById('player-overlay');
+  if(ov.classList.contains('visible')){
+    hideOverlay();
+  } else {
+    showOverlay();
+  }
+});
+
+// ===== CC SUBTITLE SYSTEM =====
+var ccActive=false, ccSubs=[], ccTab='srt', ccInterval=null;
+
+function toggleCC(){
+  var panel=document.getElementById('cc-panel');
+  ccActive=!ccActive;
+  var btn=document.getElementById('cc-btn');
+  if(ccActive){
+    panel.style.display='block';
+    btn.style.background='rgba(108,99,255,.35)';
+    btn.style.borderColor='rgba(108,99,255,.7)';
+    btn.style.color='#fff';
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  } else {
+    closeCC();
+  }
+}
+function closeCC(){
+  ccActive=false;
+  document.getElementById('cc-panel').style.display='none';
+  var btn=document.getElementById('cc-btn');
+  if(btn){btn.style.background='';btn.style.borderColor='rgba(255,255,255,.3)';btn.style.color='';}
+}
+function switchCCTab(tab){
+  ccTab=tab;
+  ['srt','manual','off'].forEach(function(t){
+    document.getElementById('cc-tab-'+t).classList.toggle('active',t===tab);
+    var panel=document.getElementById('cc-'+t+'-panel');
+    if(panel)panel.style.display=t===tab?'block':'none';
+  });
+  document.getElementById('cc-settings-row').style.display=tab==='off'?'none':'flex';
+  if(tab==='off'){
+    stopCCInterval();
+    document.getElementById('cc-subtitle-bar').style.display='none';
+    var btn=document.getElementById('cc-btn');
+    if(btn){btn.style.background='rgba(252,92,101,.2)';btn.style.borderColor='rgba(252,92,101,.5)';btn.style.color='#FC5C65';}
+  } else {
+    if(ccSubs.length)startCCInterval();
+  }
+}
+
+// ===== SRT PARSER =====
+function parseSRT(text){
+  var subs=[];
+  // Normalize line endings
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var blocks=text.split(/\n\n+/);
+  blocks.forEach(function(block){
+    var lines=block.trim().split('\n');
+    if(lines.length<2)return;
+    var start=0,idx=0;
+    // Skip index number line
+    if(/^\d+$/.test(lines[0].trim()))idx=1;
+    var timeLine=lines[idx];
+    if(!timeLine)return;
+    var m=timeLine.match(/(\d{1,2}):(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(\d{1,2}):(\d{2}):(\d{2})[.,](\d{3})/);
+    if(!m)return;
+    var s=parseInt(m[1])*3600+parseInt(m[2])*60+parseInt(m[3])+parseInt(m[4])/1000;
+    var e=parseInt(m[5])*3600+parseInt(m[6])*60+parseInt(m[7])+parseInt(m[8])/1000;
+    var txt=lines.slice(idx+1).join(' ').replace(/<[^>]+>/g,'').trim();
+    if(txt)subs.push({s:s,e:e,t:txt});
+  });
+  return subs;
+}
+
+// ===== VTT PARSER =====
+function parseVTT(text){
+  var subs=[];
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var blocks=text.split(/\n\n+/);
+  blocks.forEach(function(block){
+    var lines=block.trim().split('\n');
+    var timeLine=lines.find(function(l){return l.indexOf('-->')!==-1;});
+    if(!timeLine)return;
+    var m=timeLine.match(/(\d{2}):(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(\d{2}):(\d{2}):(\d{2})[.,](\d{3})/);
+    if(!m){m=timeLine.match(/(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(\d{2}):(\d{2})[.,](\d{3})/);
+      if(m){var s2=parseInt(m[1])*60+parseInt(m[2])+parseInt(m[3])/1000;var e2=parseInt(m[4])*60+parseInt(m[5])+parseInt(m[6])/1000;var tIdx2=lines.indexOf(timeLine)+1;var txt2=lines.slice(tIdx2).join(' ').replace(/<[^>]+>/g,'').trim();if(txt2)subs.push({s:s2,e:e2,t:txt2});return;}
+    }
+    if(!m)return;
+    var s=parseInt(m[1])*3600+parseInt(m[2])*60+parseInt(m[3])+parseInt(m[4])/1000;
+    var e=parseInt(m[5])*3600+parseInt(m[6])*60+parseInt(m[7])+parseInt(m[8])/1000;
+    var tIdx=lines.indexOf(timeLine)+1;
+    var txt=lines.slice(tIdx).join(' ').replace(/<[^>]+>/g,'').trim();
+    if(txt)subs.push({s:s,e:e,t:txt});
+  });
+  return subs;
+}
+
+function onCCFile(event){
+  var file=event.target.files[0];if(!file)return;
+  loadCCFileObj(file);
+}
+function onCCDrop(event){
+  event.preventDefault();
+  document.getElementById('cc-drop-zone').style.borderColor='rgba(255,255,255,.15)';
+  var file=event.dataTransfer.files[0];if(!file)return;
+  loadCCFileObj(file);
+}
+function loadCCFileObj(file){
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var text=e.target.result;
+    var ext=file.name.split('.').pop().toLowerCase();
+    if(ext==='vtt')ccSubs=parseVTT(text);
+    else ccSubs=parseSRT(text);
+    var status=document.getElementById('cc-srt-status');
+    if(ccSubs.length){
+      document.getElementById('cc-drop-icon').textContent='✅';
+      document.getElementById('cc-drop-txt').textContent=file.name+' · '+ccSubs.length+' سطر';
+      status.style.display='block';status.style.background='rgba(38,222,129,.1)';status.style.color='#26de81';
+      status.textContent='✅ تم تحميل '+ccSubs.length+' سطر ترجمة';
+      startCCInterval();
+    } else {
+      status.style.display='block';status.style.background='rgba(252,92,101,.1)';status.style.color='#FC5C65';
+      status.textContent='❌ لم يتم التعرف على الملف — تأكد من صيغة SRT';
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function loadManualCC(){
+  var raw=document.getElementById('cc-manual-input').value.trim();
+  var msg=document.getElementById('cc-manual-msg');
+  if(!raw){msg.style.display='block';msg.style.color='#FC5C65';msg.textContent='❌ أدخل بيانات الترجمة';return;}
+  ccSubs=[];
+  var lines=raw.split('\n');
+  lines.forEach(function(line){
+    line=line.trim();if(!line)return;
+    var m=line.match(/^(\d+)-(\d+)\|(.+)$/);
+    if(m)ccSubs.push({s:parseInt(m[1]),e:parseInt(m[2]),t:m[3].trim()});
+  });
+  if(ccSubs.length){
+    msg.style.display='block';msg.style.color='#26de81';msg.textContent='✅ تم تطبيق '+ccSubs.length+' سطر';
+    startCCInterval();
+  } else {
+    msg.style.display='block';msg.style.color='#FC5C65';msg.textContent='❌ تأكد من الصيغة: 0-4|النص';
+  }
+}
+
+var ccSize=16,ccPos='bottom';
+function updateCCSize(val){
+  ccSize=parseInt(val);
+  document.getElementById('cc-size-val').textContent=val+'px';
+  document.getElementById('cc-subtitle-text').style.fontSize=val+'px';
+}
+function updateCCPos(val){
+  ccPos=val;
+  var bar=document.getElementById('cc-subtitle-bar');
+  if(val==='top'){bar.style.bottom='auto';bar.style.top='54px';}
+  else{bar.style.top='auto';bar.style.bottom='54px';}
+}
+
+function startCCInterval(){
+  stopCCInterval();
+  document.getElementById('cc-subtitle-bar').style.display='block';
+  var btn=document.getElementById('cc-btn');
+  if(btn){btn.style.background='rgba(38,222,129,.25)';btn.style.borderColor='rgba(38,222,129,.6)';btn.style.color='#26de81';}
+  ccInterval=setInterval(function(){
+    var vid=document.getElementById('player-video');
+    if(!vid||!vid.src||vid.paused)return;
+    var t=vid.currentTime;
+    var cur=null;
+    for(var i=0;i<ccSubs.length;i++){if(t>=ccSubs[i].s&&t<=ccSubs[i].e){cur=ccSubs[i];break;}}
+    var bar=document.getElementById('cc-subtitle-bar');
+    var txt=document.getElementById('cc-subtitle-text');
+    if(cur){bar.style.display='block';txt.textContent=cur.t;}
+    else{txt.textContent='';}
+  },150);
+}
+function stopCCInterval(){
+  if(ccInterval){clearInterval(ccInterval);ccInterval=null;}
+}
+
+// ===== AUTO SUBTITLE TRANSLATOR =====
+var autoSubRecog=null, autoSubOn=false, autoSubLang='ko-KR', autoSubRetryTimer=null;
+var translateCache={}, translateQueue=[], translateBusy=false;
+
+// Keep old togglePlayerSubtrans for compatibility
+function togglePlayerSubtrans(){toggleAutoSub();}
+
+function toggleAutoSub(){
+  toggleSubtitleDisplay();
+}
+
+var subtitleVisible = true;
+function toggleSubtitleDisplay(){
+  var overlay = document.getElementById('subtitle-overlay');
+  var btn = document.getElementById('autosub-btn');
+  if(!epSubsData.length){
+    // No subtitle loaded - show info
+    showMsg('ep-msg','ℹ️ لا توجد ترجمة لهذه الحلقة — يجب أن يرفعها الأدمن مع الحلقة','warn',4000);
+    return;
+  }
+  subtitleVisible = !subtitleVisible;
+  if(subtitleVisible){
+    overlay.style.display = 'block';
+    if(btn){btn.style.background='rgba(38,222,129,.25)';btn.style.borderColor='rgba(38,222,129,.6)';btn.style.color='#26de81';}
+  } else {
+    overlay.style.display = 'none';
+    if(btn){btn.style.background='rgba(252,92,101,.15)';btn.style.borderColor='rgba(252,92,101,.4)';btn.style.color='#FC5C65';}
+  }
+}
+
+function setAutoLang(btn,lang){
+  autoSubLang=lang;
+  document.querySelectorAll('.lang-opt-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+}
+
+function startAutoSub(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    showAutoSubStatus('❌ يحتاج متصفح Chrome — استخدم Chrome للترجمة التلقائية','#FC5C65');
+    return;
+  }
+  document.getElementById('autosub-panel').style.display='none';
+  autoSubOn=true;
+  updateAutoSubBtn(true);
+  showAutoSubStatus('🎙️ جاري الاستماع...','#F7B731');
+  document.getElementById('subtitle-overlay').style.display='block';
+  document.getElementById('subtitle-text').textContent='...';
+  startRecognition();
+}
+
+function startRecognition(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR||!autoSubOn)return;
+  try{
+    autoSubRecog=new SR();
+    autoSubRecog.lang=autoSubLang;
+    autoSubRecog.continuous=true;
+    autoSubRecog.interimResults=true;
+    autoSubRecog.maxAlternatives=1;
+
+    autoSubRecog.onstart=function(){
+      showAutoSubStatus('🟢 الترجمة التلقائية تعمل','#26de81');
+    };
+
+    autoSubRecog.onresult=function(ev){
+      var results=ev.results;
+      var last=results[results.length-1];
+      var transcript=last[0].transcript.trim();
+      if(!transcript)return;
+
+      if(!last.isFinal){
+        document.getElementById('subtitle-text').style.opacity='0.6';
+        document.getElementById('subtitle-text').textContent=transcript;
+        return;
+      }
+
+      document.getElementById('subtitle-text').style.opacity='1';
+      // If source is Arabic, show directly without translation
+      if(autoSubLang.startsWith('ar')){
+        if(autoSubOn){
+          document.getElementById('subtitle-text').textContent=transcript;
+          clearTimeout(window._subHideTimer);
+          window._subHideTimer=setTimeout(function(){
+            if(autoSubOn){document.getElementById('subtitle-text').textContent='';}
+          },4000);
+        }
+        return;
+      }
+      // Otherwise translate to Arabic
+      translateText(transcript, autoSubLang.split('-')[0], function(translated){
+        if(autoSubOn){
+          document.getElementById('subtitle-text').textContent=translated||transcript;
+          clearTimeout(window._subHideTimer);
+          window._subHideTimer=setTimeout(function(){
+            if(autoSubOn){document.getElementById('subtitle-text').textContent='';}
+          },4000);
+        }
+      });
+    };
+
+    autoSubRecog.onerror=function(e){
+      if(e.error==='no-speech')return; // normal, ignore
+      if(e.error==='not-allowed'){
+        showAutoSubStatus('❌ لم يُسمح بالوصول للميكروفون','#FC5C65');
+        stopAutoSub();return;
+      }
+    };
+
+    autoSubRecog.onend=function(){
+      // Auto-restart if still active
+      if(autoSubOn){
+        clearTimeout(autoSubRetryTimer);
+        autoSubRetryTimer=setTimeout(startRecognition,300);
+      }
+    };
+
+    autoSubRecog.start();
+  }catch(err){
+    if(autoSubOn){
+      clearTimeout(autoSubRetryTimer);
+      autoSubRetryTimer=setTimeout(startRecognition,1000);
+    }
+  }
+}
+
+function stopAutoSub(){
+  autoSubOn=false;
+  updateAutoSubBtn(false);
+  if(autoSubRecog){try{autoSubRecog.onend=null;autoSubRecog.stop();}catch(e){}autoSubRecog=null;}
+  clearTimeout(autoSubRetryTimer);clearTimeout(window._subHideTimer);
+  document.getElementById('subtitle-overlay').style.display='none';
+  document.getElementById('subtitle-text').textContent='';
+  showAutoSubStatus('','');
+}
+
+function updateAutoSubBtn(on){
+  var btn=document.getElementById('autosub-btn');
+  if(!btn)return;
+  if(on){
+    btn.textContent='■ إيقاف';
+    btn.style.background='rgba(38,222,129,.25)';
+    btn.style.borderColor='rgba(38,222,129,.6)';
+    btn.style.color='#26de81';
+  } else {
+    btn.textContent='ترجمة';
+    btn.style.background='';
+    btn.style.borderColor='rgba(255,255,255,.25)';
+    btn.style.color='';
+  }
+  var startBtn=document.getElementById('autosub-start-btn');
+  if(startBtn){
+    startBtn.textContent=on?'■ إيقاف الترجمة':'▶ تشغيل الترجمة التلقائية';
+    startBtn.style.background=on?'linear-gradient(135deg,#FC5C65,#FF6584)':'linear-gradient(135deg,#6C63FF,#8B5CF6)';
+  }
+}
+
+function showAutoSubStatus(msg,color){
+  var el=document.getElementById('autosub-status');
+  if(!el)return;
+  if(!msg){el.style.display='none';return;}
+  el.style.display='block';
+  el.style.background=color==='#26de81'?'rgba(38,222,129,.1)':color==='#FC5C65'?'rgba(252,92,101,.1)':'rgba(247,183,49,.1)';
+  el.style.color=color;
+  el.style.border='1px solid '+color+'44';
+  el.textContent=msg;
+}
+
+// ===== TRANSLATION ENGINE =====
+// Multi-provider translation with fallback
+async function translateText(text, srcLang, callback){
+  if(!text||text.length<2){callback(text);return;}
+
+  // Check cache first
+  var cacheKey=srcLang+'|'+text;
+  if(translateCache[cacheKey]){callback(translateCache[cacheKey]);return;}
+
+  // Try multiple translation providers
+  var result=null;
+
+  // Provider 1: MyMemory (free, no key needed)
+  try{
+    var r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+srcLang+'|ar&de=user@example.com',{signal:AbortSignal.timeout(4000)});
+    var d=await r.json();
+    if(d.responseStatus===200&&d.responseData&&d.responseData.translatedText&&d.responseData.translatedText!==text){
+      result=d.responseData.translatedText;
+    }
+  }catch(e){}
+
+  // Provider 2: LibreTranslate public instance (fallback)
+  if(!result){
+    try{
+      var r2=await fetch('https://libretranslate.com/translate',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({q:text,source:srcLang,target:'ar',format:'text'}),
+        signal:AbortSignal.timeout(4000)
+      });
+      var d2=await r2.json();
+      if(d2.translatedText&&d2.translatedText!==text)result=d2.translatedText;
+    }catch(e){}
+  }
+
+  if(result){
+    translateCache[cacheKey]=result;
+    // Keep cache size manageable
+    var keys=Object.keys(translateCache);
+    if(keys.length>200)delete translateCache[keys[0]];
+  }
+
+  callback(result||text);
+}
+
+// Also keep async version for CC system compatibility
+async function translateSubtitle(text,lang){
+  return new Promise(function(resolve){
+    translateText(text,lang.split('-')[0],function(r){resolve(r);});
+  });
+}
+
+
+// ===== PLAY EPISODE =====
+
 
 function playEp(id){
   var ep=getEps().find(function(e){return e.id===id;});if(!ep)return;
@@ -2288,8 +3080,8 @@ function playEp(id){
     if(window._epBlobMap&&window._epBlobMap[blobId]){
       ep=Object.assign({},ep,{videoSrc:window._epBlobMap[blobId]});
     } else {
-      // Blob lost after page refresh - show re-select UI
-      showRelinkFileUI(id, ep);
+      // Old blob URL lost - show message to re-upload with URL
+      showMsg('ep-msg','⚠️ هذه الحلقة مرفوعة كملف محلي — احذفها وأعد رفعها برابط YouTube أو MP4','warn',0);
       return;
     }
   }
@@ -2663,31 +3455,8 @@ function resetSrtForm(){
   clearSrtFile();
 }
 
-function switchEpSrc(mode){epSrcMode=mode;document.getElementById('ep-src-url').classList.toggle('active',mode==='url');document.getElementById('ep-src-file').classList.toggle('active',mode==='file');document.getElementById('ep-url-panel').style.display=mode==='url'?'block':'none';document.getElementById('ep-file-panel').style.display=mode==='file'?'block':'none';}
-function onEpFile(event){
-  var file=event.target?event.target.files[0]:event;if(!file)return;
-  // Use createObjectURL - works for ANY file size instantly
-  if(window._epObjectURL){try{URL.revokeObjectURL(window._epObjectURL);}catch(e){}}
-  window._epObjectURL=URL.createObjectURL(file);
-  epFileData=window._epObjectURL;
-  window._epFileName=file.name;
-  window._epFileSize=file.size;
-  // Show progress instantly
-  var pw=document.getElementById('ep-prog');pw.style.display='block';
-  var pb=document.getElementById('ep-prog-bar'),pt=document.getElementById('ep-prog-txt');
-  pb.style.width='100%';pt.textContent='✅ جاهز للرفع';
-  var drop=document.getElementById('ep-drop');drop.classList.add('done');
-  document.getElementById('ep-drop-ico').textContent='✅';
-  document.getElementById('ep-drop-txt').textContent=file.name;
-  var sizeMB=(file.size/1024/1024).toFixed(1);
-  var sizeDisplay=file.size>1024*1024*1024?(file.size/1024/1024/1024).toFixed(2)+' GB':sizeMB+' MB';
-  document.getElementById('ep-drop-sub').textContent=sizeDisplay+' ✅';
-  document.getElementById('ep-drop-sub').style.color='#26de81';
-  // Update the choose button to show success
-  var chooseBtn=document.getElementById('ep-choose-btn');
-  if(chooseBtn){chooseBtn.textContent='✅ '+file.name;chooseBtn.style.background='rgba(38,222,129,.12)';chooseBtn.style.borderColor='rgba(38,222,129,.4)';chooseBtn.style.color='#26de81';}
-  setTimeout(function(){pw.style.display='none';},1200);
-}
+function switchEpSrc(mode){}
+
 function uploadEp(){
   var animeId=parseInt(document.getElementById('ep-anime-sel').value);
   var epNum=parseInt(document.getElementById('ep-num').value);
