@@ -306,7 +306,7 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
 .player-video{width:100%;height:100%;display:block;object-fit:contain;}
 /* PLAYER OVERLAY CONTROLS */
 .player-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;opacity:0;transition:opacity .25s;background:linear-gradient(to bottom,rgba(0,0,0,.5) 0%,transparent 25%,transparent 65%,rgba(0,0,0,.8) 100%);}
-.player-wrap:hover .player-overlay,.player-overlay.visible{opacity:1;}
+.player-overlay.visible{opacity:1;}
 .player-top-bar{padding:10px 14px;display:flex;align-items:center;gap:8px;}
 .player-title{font-size:13px;font-weight:800;flex:1;text-shadow:0 1px 4px rgba(0,0,0,.8);}
 .player-ep-badge{font-size:11px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.4);padding:2px 8px;border-radius:6px;}
@@ -332,7 +332,7 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
 .player-bottom-btn:hover{background:rgba(255,255,255,.2);}
 .player-bottom-btn.active{background:rgba(108,99,255,.3);border-color:rgba(108,99,255,.5);}
 /* BRIGHTNESS SLIDER */
-.bright-slider-wrap{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:none;flex-direction:column;align-items:center;gap:6px;}
+.bright-slider-wrap{position:absolute;top:52px;left:10px;right:10px;display:none;flex-direction:row;align-items:center;gap:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);border-radius:10px;padding:8px 12px;z-index:20;border:1px solid rgba(255,255,255,.1);}
 .bright-slider-wrap.visible{display:flex;}
 .bright-slider{-webkit-appearance:none;appearance:none;width:4px;height:100px;background:rgba(255,255,255,.2);border-radius:2px;outline:none;writing-mode:vertical-lr;direction:rtl;cursor:pointer;}
 .bright-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;cursor:pointer;}
@@ -346,6 +346,25 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
 .watch-tab.active{color:#fff;border-bottom-color:var(--accent);}
 .watch-tab-pane{display:none;}
 .watch-tab-pane.active{display:block;}
+
+/* Fullscreen landscape styles */
+.player-wrap.fs-active{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100vh!important;
+  z-index:9999!important;
+  border-radius:0!important;
+  aspect-ratio:unset!important;
+  background:#000!important;
+}
+/* Subtitle bars stay above controls in fullscreen */
+.player-wrap.fs-active #cc-subtitle-bar,
+.player-wrap.fs-active #subtitle-overlay{
+  bottom:64px;
+}
+/* Hide scrollbars in fullscreen */
+body.fs-body{overflow:hidden!important;}
 
 </style>
 </head>
@@ -513,8 +532,14 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
   <div class="watch-page-wrap">
     <div class="watch-top-bar"><button class="back-btn" onclick="backFromWatch()">← رجوع</button><div class="watch-top-info"><div class="watch-top-title" id="watch-top-title"></div><div class="watch-top-ep" id="watch-top-ep"></div></div></div>
     <div class="player-wrap" id="player-wrap">
-      <div class="bright-slider-wrap" id="bright-slider-wrap"><span style="font-size:14px;">☀️</span><input type="range" class="bright-slider" id="bright-slider" min="0" max="200" value="100" oninput="setBrightness(this.value)"><span style="font-size:14px;">🌑</span></div>
+      <div class="bright-slider-wrap" id="bright-slider-wrap">
+        <span style="font-size:13px;">🌟</span>
+        <input type="range" class="bright-slider" id="bright-slider" min="10" max="200" value="100" oninput="setBrightness(this.value)">
+        <span style="font-size:13px;">🌑</span>
+        <span id="bright-val" style="font-size:10px;font-weight:800;color:rgba(255,255,255,.7);min-width:32px;text-align:center;">100%</span>
+      </div>
       <video class="player-video" id="player-video" preload="metadata"></video>
+      <div id="bright-overlay" style="position:absolute;inset:0;pointer-events:none;z-index:5;opacity:0;transition:opacity .15s;background:rgba(0,0,0,0);"></div>
       <iframe id="player-iframe" style="display:none;width:100%;height:100%;border:none;position:absolute;inset:0;" allowfullscreen allow="autoplay"></iframe>
       <div id="cc-subtitle-bar" style="display:none;position:absolute;bottom:54px;left:0;right:0;text-align:center;pointer-events:none;z-index:10;padding:0 12px;"><div id="cc-subtitle-text" style="display:inline-block;background:rgba(0,0,0,.82);color:#fff;font-size:16px;font-weight:700;padding:6px 18px;border-radius:8px;line-height:1.6;max-width:92%;direction:rtl;text-shadow:0 1px 4px rgba(0,0,0,.9);font-family:Cairo,sans-serif;"></div></div>
       <div id="subtitle-overlay" style="display:none;position:absolute;bottom:56px;left:0;right:0;text-align:center;pointer-events:none;z-index:11;padding:0 10px;"><div id="subtitle-text" style="display:inline-block;background:rgba(0,0,0,.85);color:#fff;font-size:17px;font-weight:700;padding:7px 20px;border-radius:9px;line-height:1.6;max-width:94%;direction:rtl;text-shadow:0 1px 4px rgba(0,0,0,.9);font-family:Cairo,sans-serif;border:1px solid rgba(255,255,255,.08);"></div></div>
@@ -534,8 +559,7 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
             <div style="margin-right:auto;display:flex;align-items:center;gap:6px;">
               <button class="player-bottom-btn" onclick="cycleSpeed()">⚡ <span id="speed-label">1x</span></button>
               <button class="player-bottom-btn" onclick="toggleBrightSlider()" id="bright-btn">☀️</button>
-              <button class="player-bottom-btn" id="cc-btn" onclick="toggleCC()" title="ترجمة CC" style="font-size:11px;font-weight:900;letter-spacing:-0.5px;padding:4px 7px;border:1.5px solid rgba(255,255,255,.3);border-radius:5px;">CC</button>
-              <button class="player-bottom-btn" id="autosub-btn" onclick="toggleAutoSub()" title="ترجمة تلقائية" style="font-size:10px;font-weight:900;padding:4px 7px;border:1.5px solid rgba(255,255,255,.25);border-radius:5px;letter-spacing:-.3px;">ترجمة</button>
+              <button class="player-bottom-btn" id="autosub-btn" onclick="toggleSubtitleDisplay()" title="إظهار/إخفاء الترجمة" style="font-size:10px;font-weight:900;padding:4px 7px;border:1.5px solid rgba(255,255,255,.25);border-radius:5px;letter-spacing:-.3px;">CC</button>
               <button class="player-bottom-btn" onclick="toggleFullscreen()" id="fs-btn" title="تكبير الشاشة">⛶</button>
             </div>
           </div>
@@ -547,7 +571,7 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
         <div style="display:flex;align-items:center;gap:9px;">
           <div style="width:36px;height:36px;background:linear-gradient(135deg,#6C63FF,#FF6584);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;">🌐</div>
-          <div><div style="font-size:14px;font-weight:800;">ترجمة تلقائية فورية</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;">يكتشف الكلام ويترجمه للعربي تلقائياً</div></div>
+          <div><div style="font-size:14px;font-weight:800;">ترجمة تلقائية فورية</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;">الترجمة تظهر تلقائياً إذا رفعها الأدمن مع الحلقة</div></div>
         </div>
         <button onclick="document.getElementById('autosub-panel').style.display='none'" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;">✕</button>
       </div>
@@ -840,6 +864,20 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
               </div>
             </div>
             <div class="adm-field"><label class="adm-label">وصف (اختياري)</label><textarea class="adm-textarea" id="ep-desc" rows="2" placeholder="وصف مختصر..."></textarea></div>
+            <div class="adm-field">
+              <label class="adm-label">📄 ملف الترجمة SRT (اختياري — تظهر تلقائياً للمشاهد)</label>
+              <div class="file-drop" id="srt-drop" onclick="document.getElementById('srt-file-input').click()" style="padding:12px;border-color:rgba(108,99,255,.3);">
+                <input type="file" id="srt-file-input" accept=".srt,.vtt" style="display:none;" onchange="onSrtFile(event)">
+                <div style="display:flex;align-items:center;gap:10px;justify-content:center;">
+                  <span id="srt-drop-ico" style="font-size:22px;">📄</span>
+                  <div>
+                    <div id="srt-drop-txt" style="font-size:12px;font-weight:700;color:rgba(255,255,255,.7);">اضغط لاختيار ملف SRT أو VTT</div>
+                    <div id="srt-drop-sub" style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;">الترجمة ستظهر تلقائياً أسفل الفيديو</div>
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="srt-clear-btn" onclick="clearSrtFile()" style="display:none;width:100%;margin-top:6px;padding:7px;background:rgba(252,92,101,.1);border:1px solid rgba(252,92,101,.25);border-radius:8px;color:#FC5C65;font-family:Cairo,sans-serif;font-size:11px;font-weight:700;cursor:pointer;">✕ إزالة ملف الترجمة</button>
+            </div>
             <button class="adm-btn-primary" onclick="uploadEp()">📤 رفع الحلقة</button>
             <div class="adm-msg" id="ep-msg"></div>
           </div>
@@ -1501,6 +1539,11 @@ function stopPlayer(){
   document.getElementById('cc-subtitle-bar').style.display='none';
   stopCCInterval();
   if(autoSubOn)stopAutoSub();
+  // Reset brightness
+  var bo=document.getElementById('bright-overlay');if(bo)bo.style.opacity='0';
+  var bs=document.getElementById('bright-slider');if(bs)bs.value=100;
+  var bv=document.getElementById('bright-val');if(bv)bv.textContent='100%';
+  var bb=document.getElementById('bright-btn');if(bb)bb.textContent='☀️';
 }
 function initPlayer(src,title,ep){
   var vid=document.getElementById('player-video');
@@ -1540,41 +1583,98 @@ function toggleFullscreen(){
   var btn = document.getElementById('fs-btn');
   var isFs = document.fullscreenElement || document.webkitFullscreenElement;
   if(!isFs){
+    // Request fullscreen on the wrap element
     var req = wrap.requestFullscreen || wrap.webkitRequestFullscreen || wrap.mozRequestFullScreen;
-    if(req) req.call(wrap);
-    if(btn) btn.textContent = '⛶';
+    if(req){
+      req.call(wrap).then(function(){
+        // Lock to landscape on mobile (YouTube-style)
+        if(screen.orientation && screen.orientation.lock){
+          screen.orientation.lock('landscape').catch(function(){});
+        }
+      }).catch(function(){
+        // Fallback: try landscape lock anyway
+        if(screen.orientation && screen.orientation.lock){
+          screen.orientation.lock('landscape').catch(function(){});
+        }
+      });
+    } else {
+      // iOS Safari fallback - lock orientation
+      if(screen.orientation && screen.orientation.lock){
+        screen.orientation.lock('landscape').catch(function(){});
+      }
+    }
+    if(btn){btn.textContent='⛶';btn.style.background='rgba(108,99,255,.35)';}
   } else {
     var ex = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
     if(ex) ex.call(document);
-    if(btn) btn.textContent = '⛶';
+    // Unlock orientation when exiting
+    if(screen.orientation && screen.orientation.unlock){
+      screen.orientation.unlock();
+    }
+    if(btn){btn.textContent='⛶';btn.style.background='';}
+  }
+}
+function onFsChange(isFs){
+  var wrap = document.getElementById('player-wrap');
+  var vid = document.getElementById('player-video');
+  var btn = document.getElementById('fs-btn');
+  if(isFs){
+    // Full YouTube-style fullscreen
+    if(wrap){
+      wrap.style.borderRadius='0';
+      wrap.style.aspectRatio='unset';
+      wrap.style.width='100%';
+      wrap.style.height='100%';
+      wrap.style.position='fixed';
+      wrap.style.inset='0';
+      wrap.style.zIndex='9999';
+      wrap.style.background='#000';
+    }
+    if(vid){
+      vid.style.width='100%';
+      vid.style.height='100%';
+      vid.style.objectFit='contain';
+    }
+    if(btn){btn.style.background='rgba(108,99,255,.35)';btn.textContent='⛶';}
+    document.body.style.overflow='hidden';
+    document.body.classList.add('fs-body');
+    wrap.classList.add('fs-active');
+    // Show overlay briefly
+    showOverlay();
+  } else {
+    if(wrap){
+      wrap.style.borderRadius='14px';
+      wrap.style.aspectRatio='16/9';
+      wrap.style.width='';
+      wrap.style.height='';
+      wrap.style.position='';
+      wrap.style.inset='';
+      wrap.style.zIndex='';
+      wrap.style.background='';
+    }
+    if(vid){
+      vid.style.width='';
+      vid.style.height='';
+      vid.style.objectFit='';
+    }
+    if(btn){btn.style.background='';btn.textContent='⛶';}
+    document.body.style.overflow='';
+    document.body.classList.remove('fs-body');
+    if(wrap)wrap.classList.remove('fs-active');
+    // Unlock orientation
+    if(screen.orientation && screen.orientation.unlock){
+      try{screen.orientation.unlock();}catch(e){}
+    }
   }
 }
 document.addEventListener('fullscreenchange', function(){
-  var wrap = document.getElementById('player-wrap');
-  var btn = document.getElementById('fs-btn');
-  var isFs = document.fullscreenElement;
-  if(btn) btn.style.background = isFs ? 'rgba(108,99,255,.4)' : '';
-  if(wrap){
-    if(isFs){
-      wrap.style.borderRadius = '0';
-      wrap.style.aspectRatio = 'unset';
-      wrap.style.height = '100%';
-    } else {
-      wrap.style.borderRadius = '14px';
-      wrap.style.aspectRatio = '16/9';
-      wrap.style.height = '';
-    }
-  }
+  onFsChange(!!document.fullscreenElement);
 });
 document.addEventListener('webkitfullscreenchange', function(){
-  var wrap = document.getElementById('player-wrap');
-  var btn = document.getElementById('fs-btn');
-  var isFs = document.webkitFullscreenElement;
-  if(btn) btn.style.background = isFs ? 'rgba(108,99,255,.4)' : '';
-  if(wrap){
-    if(isFs){wrap.style.borderRadius='0';wrap.style.aspectRatio='unset';wrap.style.height='100%';}
-    else{wrap.style.borderRadius='14px';wrap.style.aspectRatio='16/9';wrap.style.height='';}
-  }
+  onFsChange(!!document.webkitFullscreenElement);
+});
+document.addEventListener('mozfullscreenchange', function(){
+  onFsChange(!!document.mozFullScreenElement);
 });
 function togglePlay(){
   var vid=document.getElementById('player-video');
@@ -1597,8 +1697,25 @@ function cycleSpeed(){
   document.getElementById('speed-label').textContent=playerSpeeds[playerSpeedIdx]+'x';showOverlay();
 }
 function setBrightness(val){
-  var vid=document.getElementById('player-video');
-  vid.style.filter='brightness('+val/100+')';
+  var pct = parseInt(val);
+  // Apply to dedicated brightness overlay (works for video + iframe + fullscreen)
+  var overlay = document.getElementById('bright-overlay');
+  if(!overlay) return;
+  if(pct === 100){
+    overlay.style.opacity = '0';
+  } else if(pct > 100){
+    // Brighter: white overlay with low opacity
+    overlay.style.background = 'rgba(255,255,255,'+ ((pct-100)/100*0.6) +')';
+    overlay.style.opacity = '1';
+  } else {
+    // Darker: black overlay with increasing opacity
+    overlay.style.background = 'rgba(0,0,0,'+ ((100-pct)/100*0.85) +')';
+    overlay.style.opacity = '1';
+  }
+  // Update icon
+  var btn = document.getElementById('bright-btn');
+  if(btn) btn.textContent = pct < 60 ? '🌑' : pct > 140 ? '🌟' : '☀️';
+  document.getElementById('bright-val').textContent = pct + '%';
 }
 function toggleBrightSlider(){
   showBright=!showBright;
@@ -1607,12 +1724,37 @@ function toggleBrightSlider(){
   else{wrap.classList.remove('visible');document.getElementById('bright-btn').classList.remove('active');}
 }
 function showOverlay(){
-  var ov=document.getElementById('player-overlay');ov.classList.add('visible');
+  var ov=document.getElementById('player-overlay');
+  ov.classList.add('visible');
   clearTimeout(window._overlayTimer);
-  window._overlayTimer=setTimeout(function(){ov.classList.remove('visible');},3000);
+  window._overlayTimer=setTimeout(function(){
+    ov.classList.remove('visible');
+  },3000);
 }
+function hideOverlay(){
+  clearTimeout(window._overlayTimer);
+  document.getElementById('player-overlay').classList.remove('visible');
+}
+// Tap/click on player wrap toggles overlay
 document.addEventListener('click',function(e){
-  var pw=document.getElementById('player-wrap');if(pw&&pw.contains(e.target))showOverlay();
+  var pw=document.getElementById('player-wrap');
+  if(!pw||!pw.contains(e.target))return;
+  // Don't toggle if clicking a button or control
+  var tag=e.target.tagName.toLowerCase();
+  var isCtrl=e.target.closest('.player-ctrl-btn,.player-bottom-btn,.player-progress,#bright-slider-wrap');
+  if(isCtrl)return;
+  var ov=document.getElementById('player-overlay');
+  if(ov.classList.contains('visible')){
+    hideOverlay();
+  } else {
+    showOverlay();
+  }
+});
+// Show overlay when controls are interacted with
+document.addEventListener('click',function(e){
+  if(e.target.closest('.player-ctrl-btn,.player-bottom-btn,.player-progress')){
+    showOverlay();
+  }
 });
 
 // ===== CC SUBTITLE SYSTEM =====
@@ -1796,13 +1938,25 @@ var translateCache={}, translateQueue=[], translateBusy=false;
 function togglePlayerSubtrans(){toggleAutoSub();}
 
 function toggleAutoSub(){
-  var panel=document.getElementById('autosub-panel');
-  if(!autoSubOn){
-    // Show panel to let user pick language
-    panel.style.display=panel.style.display==='block'?'none':'block';
-    if(panel.style.display==='block')panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  toggleSubtitleDisplay();
+}
+
+var subtitleVisible = true;
+function toggleSubtitleDisplay(){
+  var overlay = document.getElementById('subtitle-overlay');
+  var btn = document.getElementById('autosub-btn');
+  if(!epSubsData.length){
+    // No subtitle loaded - show info
+    showMsg('ep-msg','ℹ️ لا توجد ترجمة لهذه الحلقة — يجب أن يرفعها الأدمن مع الحلقة','warn',4000);
+    return;
+  }
+  subtitleVisible = !subtitleVisible;
+  if(subtitleVisible){
+    overlay.style.display = 'block';
+    if(btn){btn.style.background='rgba(38,222,129,.25)';btn.style.borderColor='rgba(38,222,129,.6)';btn.style.color='#26de81';}
   } else {
-    stopAutoSub();
+    overlay.style.display = 'none';
+    if(btn){btn.style.background='rgba(252,92,101,.15)';btn.style.borderColor='rgba(252,92,101,.4)';btn.style.color='#FC5C65';}
   }
 }
 
@@ -2029,7 +2183,82 @@ function playEp(id){
   if(watchTabActive==='comments')renderEpComments(id);
   addToHistory(ep.animeId,ep.id,ep.title);
   var wrap=document.querySelector('.player-wrap');if(wrap)wrap.scrollIntoView({behavior:'smooth',block:'start'});
+  // Auto-load subtitle if episode has SRT data
+  autoLoadEpSubtitle(ep);
 }
+
+// ===== AUTO SUBTITLE ENGINE (SRT-based) =====
+var epSubsData = [];   // parsed subtitles for current episode
+var epSubInterval = null;
+
+function autoLoadEpSubtitle(ep){
+  // Stop any running subtitle
+  stopEpSubtitle();
+
+  if(!ep.subtitle){
+    // No subtitle for this episode
+    document.getElementById('subtitle-overlay').style.display = 'none';
+    return;
+  }
+
+  // Parse the stored SRT/VTT text
+  var ext = 'srt';
+  epSubsData = parseSRT(ep.subtitle);
+  if(!epSubsData.length) epSubsData = parseVTT(ep.subtitle);
+
+  if(!epSubsData.length){
+    document.getElementById('subtitle-overlay').style.display = 'none';
+    var btn = document.getElementById('autosub-btn');
+    if(btn){btn.style.background='';btn.style.borderColor='rgba(255,255,255,.25)';btn.style.color='';}
+    return;
+  }
+
+  // Show subtitle bar and start interval
+  subtitleVisible = true;
+  document.getElementById('subtitle-overlay').style.display = 'block';
+  document.getElementById('subtitle-text').textContent = '';
+  // Update CC button to show active
+  var btn = document.getElementById('autosub-btn');
+  if(btn){btn.style.background='rgba(38,222,129,.25)';btn.style.borderColor='rgba(38,222,129,.6)';btn.style.color='#26de81';}
+  startEpSubtitle();
+}
+
+function startEpSubtitle(){
+  stopEpSubtitle();
+  epSubInterval = setInterval(function(){
+    var vid = document.getElementById('player-video');
+    if(!vid || !vid.src) return;
+    var t = vid.currentTime;
+    var cur = null;
+    for(var i = 0; i < epSubsData.length; i++){
+      if(t >= epSubsData[i].s && t <= epSubsData[i].e){
+        cur = epSubsData[i];
+        break;
+      }
+    }
+    var bar = document.getElementById('subtitle-overlay');
+    var txt = document.getElementById('subtitle-text');
+    if(cur){
+      bar.style.display = 'block';
+      txt.textContent = cur.t;
+      txt.style.opacity = '1';
+    } else {
+      txt.textContent = '';
+    }
+  }, 100);
+}
+
+function stopEpSubtitle(){
+  if(epSubInterval){ clearInterval(epSubInterval); epSubInterval = null; }
+  epSubsData = [];
+}
+
+// Also stop on stopPlayer
+var _origStopPlayer = stopPlayer;
+stopPlayer = function(){
+  stopEpSubtitle();
+  _origStopPlayer();
+};
 
 // ===== HISTORY =====
 function addToHistory(animeId,epId,epTitle){
@@ -2260,6 +2489,50 @@ function populateEpSel(){
   if(kdArr.length){sel.innerHTML+='<optgroup label="🇰🇷 مسلسلات كورية">';kdArr.forEach(function(a){sel.innerHTML+='<option value="'+a.id+'">'+a.img+' '+escHtml(a.title)+'</option>';});sel.innerHTML+='</optgroup>';}
   if(prev)sel.value=prev;renderEpList();
 }
+// ===== SRT FILE HANDLING FOR ADMIN =====
+var srtFileData = null; // Parsed subtitle array
+var srtRawText = null;  // Raw SRT text for storage
+
+function onSrtFile(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    srtRawText = e.target.result;
+    var ext = file.name.split('.').pop().toLowerCase();
+    srtFileData = ext === 'vtt' ? parseVTT(srtRawText) : parseSRT(srtRawText);
+    if(srtFileData && srtFileData.length){
+      document.getElementById('srt-drop-ico').textContent = '✅';
+      document.getElementById('srt-drop-txt').textContent = file.name + ' · ' + srtFileData.length + ' سطر';
+      document.getElementById('srt-drop-sub').textContent = 'الترجمة جاهزة — ستظهر تلقائياً للمشاهد ✅';
+      document.getElementById('srt-drop-sub').style.color = '#26de81';
+      document.getElementById('srt-drop').style.borderColor = 'rgba(38,222,129,.4)';
+      document.getElementById('srt-clear-btn').style.display = 'block';
+    } else {
+      document.getElementById('srt-drop-ico').textContent = '❌';
+      document.getElementById('srt-drop-txt').textContent = 'خطأ — تأكد من صيغة SRT';
+      document.getElementById('srt-drop-sub').style.color = '#FC5C65';
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function clearSrtFile(){
+  srtFileData = null;
+  srtRawText = null;
+  document.getElementById('srt-drop-ico').textContent = '📄';
+  document.getElementById('srt-drop-txt').textContent = 'اضغط لاختيار ملف SRT أو VTT';
+  document.getElementById('srt-drop-sub').textContent = 'الترجمة ستظهر تلقائياً أسفل الفيديو';
+  document.getElementById('srt-drop-sub').style.color = 'rgba(255,255,255,.35)';
+  document.getElementById('srt-drop').style.borderColor = 'rgba(108,99,255,.3)';
+  document.getElementById('srt-clear-btn').style.display = 'none';
+  document.getElementById('srt-file-input').value = '';
+}
+
+function resetSrtForm(){
+  clearSrtFile();
+}
+
 function switchEpSrc(mode){epSrcMode=mode;document.getElementById('ep-src-url').classList.toggle('active',mode==='url');document.getElementById('ep-src-file').classList.toggle('active',mode==='file');document.getElementById('ep-url-panel').style.display=mode==='url'?'block':'none';document.getElementById('ep-file-panel').style.display=mode==='file'?'block':'none';}
 function onEpFile(event){
   var file=event.target?event.target.files[0]:event;if(!file)return;
@@ -2314,11 +2587,13 @@ function uploadEp(){
     window._epBlobMap[epId]=videoSrc;
     videoSrc='blob_ref:'+epId; // placeholder in storage
   }
-  eps.push({id:epId,animeId:animeId,epNum:epNum,title:title,desc:desc,videoSrc:videoSrc,srcType:srcType,uploadedAt:new Date().toLocaleDateString('ar-SA')});
+  // Save SRT subtitle data with episode
+  var subtitleData = srtRawText || null;
+  eps.push({id:epId,animeId:animeId,epNum:epNum,title:title,desc:desc,videoSrc:videoSrc,srcType:srcType,subtitle:subtitleData,uploadedAt:new Date().toLocaleDateString('ar-SA')});
   eps.sort(function(a,b){return a.animeId-b.animeId||a.epNum-b.epNum;});
   saveEps(eps);
   document.getElementById('ep-num').value='';document.getElementById('ep-title').value='';document.getElementById('ep-url').value='';document.getElementById('ep-desc').value='';epFileData=null;
-  document.getElementById('ep-drop').classList.remove('done');document.getElementById('ep-drop-ico').textContent='🎬';document.getElementById('ep-drop-txt').textContent='اسحب ملف الفيديو أو اضغط للاختيار';document.getElementById('ep-drop-sub').textContent='MP4 · MKV · AVI · WebM';document.getElementById('ep-drop-sub').style.color='';document.getElementById('ep-file-input').value='';var cb=document.getElementById('ep-choose-btn');if(cb){cb.textContent='❌ اختر ملف فيديو';cb.style.background='rgba(252,92,101,.12)';cb.style.borderColor='rgba(252,92,101,.3)';cb.style.color='#FC5C65';}
+  document.getElementById('ep-drop').classList.remove('done');document.getElementById('ep-drop-ico').textContent='🎬';document.getElementById('ep-drop-txt').textContent='اسحب ملف الفيديو أو اضغط للاختيار';resetSrtForm();document.getElementById('ep-drop-sub').textContent='MP4 · MKV · AVI · WebM';document.getElementById('ep-drop-sub').style.color='';document.getElementById('ep-file-input').value='';var cb=document.getElementById('ep-choose-btn');if(cb){cb.textContent='❌ اختر ملف فيديو';cb.style.background='rgba(252,92,101,.12)';cb.style.borderColor='rgba(252,92,101,.3)';cb.style.color='#FC5C65';}
   showMsg('ep-msg','✅ تم رفع الحلقة بنجاح!','ok');renderEpList();
 }
 function renderEpList(){
@@ -2332,7 +2607,8 @@ function renderEpList(){
   if(!eps.length){list.innerHTML='<div style="text-align:center;padding:14px;color:rgba(255,255,255,.3);font-size:12px;">لا توجد حلقات بعد</div>';return;}
   list.innerHTML=eps.map(function(ep){
     var tl=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'ملف محلي':'رابط';
-    return '<div class="adm-ep-item"><div class="adm-ep-n">'+ep.epNum+'</div><div class="adm-ep-name">'+escHtml(ep.title)+'</div><div class="adm-ep-type">'+tl+'</div><button class="adm-ep-del" onclick="delEp('+ep.id+')">حذف</button></div>';
+    var subBadge=ep.subtitle?'<span style="background:rgba(38,222,129,.15);border:1px solid rgba(38,222,129,.3);color:#26de81;font-size:9px;font-weight:800;padding:2px 6px;border-radius:5px;margin-right:4px;">CC</span>':'';
+    return '<div class="adm-ep-item"><div class="adm-ep-n">'+ep.epNum+'</div><div class="adm-ep-name">'+subBadge+escHtml(ep.title)+'</div><div class="adm-ep-type">'+tl+'</div><button class="adm-ep-del" onclick="delEp('+ep.id+')">حذف</button></div>';
   }).join('');
 }
 function delEp(id){if(!confirm('حذف هذه الحلقة؟'))return;saveEps(getEps().filter(function(e){return e.id!==id;}));renderEpList();}
