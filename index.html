@@ -303,7 +303,7 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
 .watch-top-ep{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;}
 /* CUSTOM VIDEO PLAYER */
 .player-wrap{background:#000;border-radius:14px;overflow:hidden;margin-bottom:14px;position:relative;aspect-ratio:16/9;}
-.player-video{width:100%;height:100%;display:block;object-fit:contain;}
+.player-video{width:100%;height:100%;display:none;object-fit:contain;background:#000;}
 /* PLAYER OVERLAY CONTROLS */
 .player-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;opacity:0;transition:opacity .25s;background:linear-gradient(to bottom,rgba(0,0,0,.5) 0%,transparent 25%,transparent 65%,rgba(0,0,0,.8) 100%);}
 .player-overlay.visible{opacity:1;}
@@ -1678,7 +1678,18 @@ document.addEventListener('mozfullscreenchange', function(){
 });
 function togglePlay(){
   var vid=document.getElementById('player-video');
-  if(vid.src){if(vid.paused)vid.play();else vid.pause();}
+  if(vid.src && vid.src !== window.location.href){
+    if(vid.paused){
+      vid.play().then(function(){
+        playerIsPlaying=true;
+        document.getElementById('play-icon').textContent='⏸';
+      }).catch(function(e){console.log('play error:',e);});
+    } else {
+      vid.pause();
+      playerIsPlaying=false;
+      document.getElementById('play-icon').textContent='▶';
+    }
+  }
   showOverlay();
 }
 function skipTime(sec){
@@ -1739,20 +1750,17 @@ function hideOverlay(){
 document.addEventListener('click',function(e){
   var pw=document.getElementById('player-wrap');
   if(!pw||!pw.contains(e.target))return;
-  // Don't toggle if clicking a button or control
-  var tag=e.target.tagName.toLowerCase();
   var isCtrl=e.target.closest('.player-ctrl-btn,.player-bottom-btn,.player-progress,#bright-slider-wrap');
-  if(isCtrl)return;
+  if(isCtrl){
+    // Control clicked - just show overlay
+    showOverlay();
+    return;
+  }
+  // Tap on video area - toggle overlay
   var ov=document.getElementById('player-overlay');
   if(ov.classList.contains('visible')){
     hideOverlay();
   } else {
-    showOverlay();
-  }
-});
-// Show overlay when controls are interacted with
-document.addEventListener('click',function(e){
-  if(e.target.closest('.player-ctrl-btn,.player-bottom-btn,.player-progress')){
     showOverlay();
   }
 });
@@ -2152,6 +2160,51 @@ async function translateSubtitle(text,lang){
 
 
 // ===== PLAY EPISODE =====
+function showRelinkFileUI(epId, ep){
+  // Show a panel asking user to re-select the video file
+  var wrap = document.getElementById('player-wrap');
+  var vid = document.getElementById('player-video');
+  vid.style.display = 'none';
+  // Remove existing relink UI if any
+  var old = document.getElementById('relink-ui');
+  if(old) old.remove();
+  var div = document.createElement('div');
+  div.id = 'relink-ui';
+  div.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(0,0,0,.92);z-index:20;';
+  div.innerHTML = '<div style="font-size:36px;">📁</div>'
+    + '<div style="font-size:15px;font-weight:800;color:#fff;text-align:center;">اختر ملف الفيديو مجدداً</div>'
+    + '<div style="font-size:12px;color:rgba(255,255,255,.45);text-align:center;max-width:260px;line-height:1.7;">روابط الملفات المحلية تنتهي عند إعادة فتح الصفحة — اختر الملف مرة أخرى</div>'
+    + '<label style="background:linear-gradient(135deg,#6C63FF,#8B5CF6);border:none;border-radius:12px;color:#fff;font-family:Cairo,sans-serif;font-size:14px;font-weight:700;padding:12px 28px;cursor:pointer;display:inline-block;">'
+    + '📂 اختر الملف'
+    + '<input type="file" accept="video/*" style="display:none;" onchange="relinkEpFile(event,'+epId+')">'
+    + '</label>';
+  wrap.appendChild(div);
+  showOverlay();
+}
+
+function relinkEpFile(event, epId){
+  var file = event.target.files[0];
+  if(!file) return;
+  // Remove relink UI
+  var old = document.getElementById('relink-ui');
+  if(old) old.remove();
+  // Create new blob URL
+  if(window._epObjectURL) try{URL.revokeObjectURL(window._epObjectURL);}catch(e){}
+  var blobUrl = URL.createObjectURL(file);
+  window._epObjectURL = blobUrl;
+  // Update memory map
+  if(!window._epBlobMap) window._epBlobMap = {};
+  // Find the stored blob_ref id
+  var eps = getEps();
+  var ep = eps.find(function(e){ return e.id === epId; });
+  if(ep && ep.videoSrc && ep.videoSrc.startsWith('blob_ref:')){
+    var blobId = parseInt(ep.videoSrc.replace('blob_ref:',''));
+    window._epBlobMap[blobId] = blobUrl;
+  }
+  // Now play
+  playEp(epId);
+}
+
 function playEp(id){
   var ep=getEps().find(function(e){return e.id===id;});if(!ep)return;
   // Resolve blob reference if stored in memory map
@@ -2160,7 +2213,9 @@ function playEp(id){
     if(window._epBlobMap&&window._epBlobMap[blobId]){
       ep=Object.assign({},ep,{videoSrc:window._epBlobMap[blobId]});
     } else {
-      showMsg('ep-msg','⚠️ الملف غير متاح — أعد فتح الصفحة لإعادة ربط الملف','warn',0);return;
+      // Blob lost after page refresh - show re-select UI
+      showRelinkFileUI(id, ep);
+      return;
     }
   }
   var anime=animes.find(function(a){return a.id===ep.animeId;});
