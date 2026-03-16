@@ -303,7 +303,7 @@ h1{font-size:clamp(26px,6vw,50px);font-weight:900;line-height:1.2;background:lin
 .watch-top-ep{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;}
 /* CUSTOM VIDEO PLAYER */
 .player-wrap{background:#000;border-radius:14px;overflow:hidden;margin-bottom:14px;position:relative;aspect-ratio:16/9;}
-.player-video{width:100%;height:100%;display:none;object-fit:contain;background:#000;}
+.player-video{width:100%;height:100%;display:none;object-fit:cover;background:#000;}
 /* PLAYER OVERLAY CONTROLS */
 .player-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;opacity:0;transition:opacity .25s;background:linear-gradient(to bottom,rgba(0,0,0,.5) 0%,transparent 25%,transparent 65%,rgba(0,0,0,.8) 100%);}
 .player-overlay.visible{opacity:1;}
@@ -560,6 +560,7 @@ body.fs-body{overflow:hidden!important;}
               <button class="player-bottom-btn" onclick="cycleSpeed()">⚡ <span id="speed-label">1x</span></button>
               <button class="player-bottom-btn" onclick="toggleBrightSlider()" id="bright-btn">☀️</button>
               <button class="player-bottom-btn" id="autosub-btn" onclick="toggleSubtitleDisplay()" title="إظهار/إخفاء الترجمة" style="font-size:10px;font-weight:900;padding:4px 7px;border:1.5px solid rgba(255,255,255,.25);border-radius:5px;letter-spacing:-.3px;">CC</button>
+              <button class="player-bottom-btn" id="fit-btn" onclick="toggleVideoFit()" title="ملء الشاشة / عرض كامل" style="font-size:11px;font-weight:900;padding:4px 7px;border-radius:5px;">⊡</button>
               <button class="player-bottom-btn" onclick="toggleFullscreen()" id="fs-btn" title="تكبير الشاشة">⛶</button>
             </div>
           </div>
@@ -1240,11 +1241,12 @@ function renderModalEps(animeId){
   if(!eps.length){list.style.display='none';empty.style.display='block';return;}
   list.style.display='flex';empty.style.display='none';
   list.innerHTML=eps.map(function(ep){
-    var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف محلي':'🔗 رابط';
-    return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')">'
+    var ti=ep.srcType==='youtube'?'YouTube · جاهز للتشغيل':ep.srcType==='file'?'⚠️ رابط منتهي — راجع الأدمن':'🔗 رابط مباشر';
+    var canPlay=ep.srcType!=='file'||!ep.videoSrc.startsWith('blob_ref:');
+    return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')" style="'+(canPlay?'':'opacity:.6;')+'">'
       +'<div class="ep-num">'+ep.epNum+'</div>'
-      +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">'+ti+'</div></div>'
-      +'<div class="ep-play">▶</div></div>';
+      +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta" style="color:'+(canPlay?'rgba(255,255,255,.4)':'#FC5C65')+';">'+ti+'</div></div>'
+      +'<div class="ep-play">'+(canPlay?'▶':'⚠️')+'</div></div>';
   }).join('');
 }
 function openWatchFromModal(epId){
@@ -1509,11 +1511,12 @@ function renderWatchPage(){
   if(!eps.length){list.style.display='none';empty.style.display='block';return;}
   list.style.display='flex';empty.style.display='none';
   list.innerHTML=eps.map(function(ep){
-    var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف محلي':'🔗 رابط';
-    return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')">'
+    var ti=ep.srcType==='youtube'?'YouTube · جاهز للتشغيل':ep.srcType==='file'?'⚠️ رابط منتهي — راجع الأدمن':'🔗 رابط مباشر';
+    var canPlay=ep.srcType!=='file'||!ep.videoSrc.startsWith('blob_ref:');
+    return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')" style="'+(canPlay?'':'opacity:.6;')+'">'
       +'<div class="ep-num">'+ep.epNum+'</div>'
-      +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">'+ti+'</div></div>'
-      +'<div class="ep-play">▶</div></div>';
+      +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta" style="color:'+(canPlay?'rgba(255,255,255,.4)':'#FC5C65')+';">'+ti+'</div></div>'
+      +'<div class="ep-play">'+(canPlay?'▶':'⚠️')+'</div></div>';
   }).join('');
 }
 function watchTab(name,btn){
@@ -1539,6 +1542,10 @@ function stopPlayer(){
   if(autoSubOn)stopAutoSub();
   // Reset brightness
   var bo=document.getElementById('bright-overlay');if(bo)bo.style.opacity='0';
+  // Reset video fit
+  videoFitMode='cover';
+  var vid2=document.getElementById('player-video');if(vid2)vid2.style.objectFit='cover';
+  var fb=document.getElementById('fit-btn');if(fb){fb.textContent='⊡';fb.style.background='';fb.style.color='';}
   var bs=document.getElementById('bright-slider');if(bs)bs.value=100;
   var bv=document.getElementById('bright-val');if(bv)bv.textContent='100%';
   var bb=document.getElementById('bright-btn');if(bb)bb.textContent='☀️';
@@ -1674,6 +1681,28 @@ document.addEventListener('webkitfullscreenchange', function(){
 document.addEventListener('mozfullscreenchange', function(){
   onFsChange(!!document.mozFullScreenElement);
 });
+var videoFitMode = 'cover'; // cover = fill (no black bars), contain = full frame
+function toggleVideoFit(){
+  var vid = document.getElementById('player-video');
+  var btn = document.getElementById('fit-btn');
+  if(videoFitMode === 'cover'){
+    videoFitMode = 'contain';
+    vid.style.objectFit = 'contain';
+    btn.textContent = '⊞';
+    btn.style.background = 'rgba(108,99,255,.3)';
+    btn.style.color = '#9D97FF';
+    btn.title = 'ملء الشاشة (بدون أشرطة سوداء)';
+  } else {
+    videoFitMode = 'cover';
+    vid.style.objectFit = 'cover';
+    btn.textContent = '⊡';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.title = 'عرض كامل (مع أشرطة سوداء)';
+  }
+  showOverlay();
+}
+
 function togglePlay(){
   var vid=document.getElementById('player-video');
   if(vid.src && vid.src !== window.location.href){
@@ -2421,11 +2450,12 @@ function renderWatchPage(){
   if(!eps.length){list.style.display='none';empty.style.display='block';return;}
   list.style.display='flex';empty.style.display='none';
   list.innerHTML=eps.map(function(ep){
-    var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف محلي':'🔗 رابط';
-    return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')">'
+    var ti=ep.srcType==='youtube'?'YouTube · جاهز للتشغيل':ep.srcType==='file'?'⚠️ رابط منتهي — راجع الأدمن':'🔗 رابط مباشر';
+    var canPlay=ep.srcType!=='file'||!ep.videoSrc.startsWith('blob_ref:');
+    return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')" style="'+(canPlay?'':'opacity:.6;')+'">'
       +'<div class="ep-num">'+ep.epNum+'</div>'
-      +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">'+ti+'</div></div>'
-      +'<div class="ep-play">▶</div></div>';
+      +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta" style="color:'+(canPlay?'rgba(255,255,255,.4)':'#FC5C65')+';">'+ti+'</div></div>'
+      +'<div class="ep-play">'+(canPlay?'▶':'⚠️')+'</div></div>';
   }).join('');
 }
 function watchTab(name,btn){
@@ -2451,6 +2481,10 @@ function stopPlayer(){
   if(autoSubOn)stopAutoSub();
   // Reset brightness
   var bo=document.getElementById('bright-overlay');if(bo)bo.style.opacity='0';
+  // Reset video fit
+  videoFitMode='cover';
+  var vid2=document.getElementById('player-video');if(vid2)vid2.style.objectFit='cover';
+  var fb=document.getElementById('fit-btn');if(fb){fb.textContent='⊡';fb.style.background='';fb.style.color='';}
   var bs=document.getElementById('bright-slider');if(bs)bs.value=100;
   var bv=document.getElementById('bright-val');if(bv)bv.textContent='100%';
   var bb=document.getElementById('bright-btn');if(bb)bb.textContent='☀️';
@@ -2586,6 +2620,28 @@ document.addEventListener('webkitfullscreenchange', function(){
 document.addEventListener('mozfullscreenchange', function(){
   onFsChange(!!document.mozFullScreenElement);
 });
+var videoFitMode = 'cover'; // cover = fill (no black bars), contain = full frame
+function toggleVideoFit(){
+  var vid = document.getElementById('player-video');
+  var btn = document.getElementById('fit-btn');
+  if(videoFitMode === 'cover'){
+    videoFitMode = 'contain';
+    vid.style.objectFit = 'contain';
+    btn.textContent = '⊞';
+    btn.style.background = 'rgba(108,99,255,.3)';
+    btn.style.color = '#9D97FF';
+    btn.title = 'ملء الشاشة (بدون أشرطة سوداء)';
+  } else {
+    videoFitMode = 'cover';
+    vid.style.objectFit = 'cover';
+    btn.textContent = '⊡';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.title = 'عرض كامل (مع أشرطة سوداء)';
+  }
+  showOverlay();
+}
+
 function togglePlay(){
   var vid=document.getElementById('player-video');
   if(vid.src && vid.src !== window.location.href){
