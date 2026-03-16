@@ -1242,13 +1242,35 @@ function renderModalEps(animeId){
   if(!eps.length){list.style.display='none';empty.style.display='block';return;}
   list.style.display='flex';empty.style.display='none';
   list.innerHTML=eps.map(function(ep){
-    var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف':'🔗 رابط';
+    var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف محلي':'🔗 رابط';
+    if(ep.srcType==='file'){
+      return '<div class="ep-row" id="meprow-'+ep.id+'" style="position:relative;">'
+        +'<div class="ep-num">'+ep.epNum+'</div>'
+        +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">📁 اضغط واختر الملف</div></div>'
+        +'<label style="position:absolute;inset:0;cursor:pointer;">'
+        +'<input type="file" accept="video/*" style="display:none;" onchange="openLocalFromModal(event,'+ep.id+')">'
+        +'</label>'
+        +'<div class="ep-play">📂</div></div>';
+    }
     return '<div class="ep-row" onclick="openWatchFromModal('+ep.id+')">'
       +'<div class="ep-num">'+ep.epNum+'</div>'
       +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">'+ti+'</div></div>'
       +'<div class="ep-play">▶</div></div>';
   }).join('');
 }
+function openLocalFromModal(event, epId){
+  var ep = getEps().find(function(e){return e.id===epId;});
+  if(!ep) return;
+  watchAnimeId = ep.animeId;
+  closeModal();
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('page-watch').classList.add('active');
+  var a = animes.find(function(x){return x.id===watchAnimeId;}) || getKdrama().find(function(x){return x.id===watchAnimeId;});
+  if(a){ document.getElementById('watch-top-title').textContent=a.title; }
+  renderWatchPage();
+  setTimeout(function(){ playLocalFile(event, epId); }, 200);
+}
+
 function openWatchFromModal(epId){
   if(!currentAnime)return;
   watchAnimeId=currentAnime.id;
@@ -1511,7 +1533,17 @@ function renderWatchPage(){
   if(!eps.length){list.style.display='none';empty.style.display='block';return;}
   list.style.display='flex';empty.style.display='none';
   list.innerHTML=eps.map(function(ep){
-    var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف':'🔗 رابط';
+    var ti=ep.srcType==='youtube'?'YouTube':ep.srcType==='file'?'📁 ملف محلي':'🔗 رابط';
+    if(ep.srcType==='file'){
+      // File episodes: show a label that opens file picker directly
+      return '<div class="ep-row" id="eprow-'+ep.id+'" style="position:relative;">'
+        +'<div class="ep-num">'+ep.epNum+'</div>'
+        +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">📁 اضغط واختر الملف من جهازك</div></div>'
+        +'<label style="position:absolute;inset:0;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;padding-right:14px;">'
+        +'<input type="file" accept="video/*" style="display:none;" onchange="playLocalFile(event,'+ep.id+')">'
+        +'</label>'
+        +'<div class="ep-play" style="z-index:2;">📂</div></div>';
+    }
     return '<div class="ep-row" id="eprow-'+ep.id+'" onclick="playEp('+ep.id+')">'
       +'<div class="ep-num">'+ep.epNum+'</div>'
       +'<div class="ep-info"><div class="ep-name">'+escHtml(ep.title)+'</div><div class="ep-meta">'+ti+'</div></div>'
@@ -2160,6 +2192,49 @@ async function translateSubtitle(text,lang){
 
 
 // ===== PLAY EPISODE =====
+function playLocalFile(event, epId){
+  var file = event.target.files[0];
+  if(!file) return;
+  // Revoke old blob if any
+  if(window._currentBlobURL){ try{URL.revokeObjectURL(window._currentBlobURL);}catch(e){} }
+  window._currentBlobURL = URL.createObjectURL(file);
+  // Get ep data
+  var ep = getEps().find(function(e){ return e.id === epId; });
+  if(!ep) return;
+  // Remove relink UI if shown
+  var old = document.getElementById('relink-ui'); if(old) old.remove();
+  // Play directly
+  var vid = document.getElementById('player-video');
+  var ifr = document.getElementById('player-iframe');
+  ifr.src=''; ifr.style.display='none';
+  vid.style.display='block';
+  vid.src = window._currentBlobURL;
+  vid.load();
+  vid.play().then(function(){
+    playerIsPlaying=true;
+    document.getElementById('play-icon').textContent='⏸';
+  }).catch(function(){});
+  // Update UI
+  var anime = animes.find(function(a){return a.id===ep.animeId;}) || getKdrama().find(function(a){return a.id===ep.animeId;});
+  currentEpId = epId;
+  document.querySelectorAll('.ep-row').forEach(function(r){r.classList.remove('playing');});
+  var row = document.getElementById('eprow-'+epId);
+  if(row) row.classList.add('playing');
+  document.getElementById('watch-info').style.display='block';
+  var an=document.getElementById('watch-anime-name'); if(an)an.textContent=anime?anime.title:'';
+  var et=document.getElementById('watch-ep-title'); if(et)et.textContent=ep.title;
+  var eb=document.getElementById('watch-ep-badge'); if(eb)eb.textContent='الحلقة '+ep.epNum;
+  var ed=document.getElementById('watch-ep-desc'); if(ed)ed.textContent=ep.desc||'';
+  var tt=document.getElementById('watch-top-title'); if(tt)tt.textContent=anime?anime.title:'';
+  var te=document.getElementById('watch-top-ep'); if(te)te.textContent='الحلقة : '+ep.epNum;
+  setupPlayerEvents(vid);
+  addToHistory(ep.animeId, ep.id, ep.title);
+  autoLoadEpSubtitle(ep);
+  var wrap=document.querySelector('.player-wrap');
+  if(wrap)wrap.scrollIntoView({behavior:'smooth',block:'start'});
+  showOverlay();
+}
+
 function showRelinkFileUI(epId, ep){
   // Show a panel asking user to re-select the video file
   var wrap = document.getElementById('player-wrap');
